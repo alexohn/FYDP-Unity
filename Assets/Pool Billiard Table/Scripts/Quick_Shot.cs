@@ -62,6 +62,7 @@ namespace TargetPath {
         {
             Start();
             Clear();
+			ScreenShot();
             Target Final_shot = new Target();
             foreach (GameObject ball in balls)
             {
@@ -150,6 +151,11 @@ namespace TargetPath {
                 GameObject.Destroy(line);
             }
         }
+
+		public void ScreenShot()
+		{
+			Application.CaptureScreenshot("Screenshot.png");
+		}
     }
 }
 
