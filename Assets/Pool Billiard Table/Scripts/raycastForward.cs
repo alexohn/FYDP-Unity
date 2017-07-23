@@ -11,11 +11,11 @@ public class raycastForward : MonoBehaviour {
 		RaycastHit hit;
 		float theDistance;
 		Vector3 forward = transform.TransformDirection (Vector3.forward) * 10;
-		Debug.DrawRay (transform.position, forward, Color.white);
+		//Debug.DrawRay (transform.position, forward, Color.white);
 
 		if (Physics.Raycast (transform.position, forward, out hit)) {
 			theDistance = hit.distance;
-			print (theDistance + " " + hit.collider.gameObject.name);
+			//print (theDistance + " " + hit.collider.gameObject.name);
 		}
 	}
 }
