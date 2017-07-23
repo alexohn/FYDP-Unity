@@ -37,6 +37,7 @@ public class Process_Color : MonoBehaviour {
         process.StartInfo.Arguments = "state.jpg";
         process.Start();
         process.WaitForExit();
+        Clearboard();
         string[] circles = File.ReadAllLines("colour_coordinates.txt");
         char[] split = new char[2];
         split[0] = '-';
@@ -65,4 +66,22 @@ public class Process_Color : MonoBehaviour {
         }
     }
     
+    public void Clearboard()
+    {
+        GameObject[] Solid = GameObject.FindGameObjectsWithTag("Solid");
+        GameObject[] Stripe = GameObject.FindGameObjectsWithTag("Stripe");
+
+        Destroy(GameObject.FindWithTag("Cue"));
+        Destroy(GameObject.FindWithTag("Black"));
+        
+        foreach (GameObject ball in Solid)
+        {
+            GameObject.Destroy(ball);
+        }
+
+        foreach (GameObject ball in Stripe)
+        {
+            GameObject.Destroy(ball);
+        }
+    }
 }
