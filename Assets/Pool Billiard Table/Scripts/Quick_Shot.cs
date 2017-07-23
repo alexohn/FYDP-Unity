@@ -133,9 +133,7 @@ namespace TargetPath {
                             optimal_pocket.distance = Vector3.Distance(pocket.transform.position, ball.transform.position);
                             optimal_pocket.position = pocket.transform.position;
                         }
-
                     }
-
                 }
             }
 
