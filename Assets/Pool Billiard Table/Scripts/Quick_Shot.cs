@@ -48,7 +48,7 @@ namespace TargetPath {
             cue = GameObject.FindGameObjectWithTag("Cue");
             balls = GameObject.FindGameObjectsWithTag("Solid");
             pockets = GameObject.FindGameObjectsWithTag("Pocket");
-            double best_weight = 100;
+            best_weight = 100;
 
         }
 
