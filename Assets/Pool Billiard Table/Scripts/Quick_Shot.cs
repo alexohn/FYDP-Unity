@@ -48,7 +48,7 @@ namespace TargetPath {
             cue = GameObject.FindGameObjectWithTag("Cue");
             balls = GameObject.FindGameObjectsWithTag("Solid");
             pockets = GameObject.FindGameObjectsWithTag("Pocket");
-            double best_weight = 100;
+            best_weight = 100;
 
         }
 
@@ -62,6 +62,7 @@ namespace TargetPath {
         {
             Start();
             Clear();
+			ScreenShot();
             Target Final_shot = new Target();
             foreach (GameObject ball in balls)
             {
@@ -133,9 +134,7 @@ namespace TargetPath {
                             optimal_pocket.distance = Vector3.Distance(pocket.transform.position, ball.transform.position);
                             optimal_pocket.position = pocket.transform.position;
                         }
-
                     }
-
                 }
             }
 
@@ -152,6 +151,11 @@ namespace TargetPath {
                 GameObject.Destroy(line);
             }
         }
+
+		public void ScreenShot()
+		{
+			Application.CaptureScreenshot("Screenshot.png");
+		}
     }
 }
 

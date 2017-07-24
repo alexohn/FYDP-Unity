@@ -70,6 +70,7 @@ public class Process_Color : MonoBehaviour {
     {
         GameObject[] Solid = GameObject.FindGameObjectsWithTag("Solid");
         GameObject[] Stripe = GameObject.FindGameObjectsWithTag("Stripe");
+        GameObject[] Lines = GameObject.FindGameObjectsWithTag("Solution");
 
         Destroy(GameObject.FindWithTag("Cue"));
         Destroy(GameObject.FindWithTag("Black"));
@@ -82,6 +83,11 @@ public class Process_Color : MonoBehaviour {
         foreach (GameObject ball in Stripe)
         {
             GameObject.Destroy(ball);
+        }
+
+        foreach (GameObject line in Lines)
+        {
+            GameObject.Destroy(line);
         }
     }
 }
