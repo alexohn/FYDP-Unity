@@ -28,6 +28,69 @@ namespace TargetPath {
             this.valid_path = false;
         }
     }
+
+    public class Shot_Tools
+    {
+        public bool Measure_Collision(Vector3 ball, Vector3 destination)
+        {
+            RaycastHit collision; 
+            Physics.Linecast(ball, destination, out collision);
+            if (collision.transform.position == destination)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Draw_Path(Vector3 cue, Vector3 ball, Vector3 pocket)
+        {
+            GameObject line1 = new GameObject("line");
+            line1.tag = "Solution";
+            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
+            shot1.SetWidth(0.3f, 0.3f);
+
+            GameObject line2 = new GameObject("line");
+            line2.tag = "Solution";
+            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
+            shot2.SetWidth(0.3f, 0.3f);
+
+            Vector3[] coord1 = new Vector3[2] { cue, ball };
+            Vector3[] coord2 = new Vector3[2] { ball, pocket };
+            shot1.SetPositions(coord1);
+            shot2.SetPositions(coord2);
+        }
+
+        public bool Calculate_Angle_toPocket(Vector3 end, Vector3 start, Vector3 cue)
+        {
+
+            Shot_Tools path = new Shot_Tools();
+            Pocket optimal_pocket = new Pocket();
+            if (path.Measure_Collision(end, start))
+            {
+                // Look into direction of cue ball to solid
+                Vector3 start_trajectory = (cue - start).normalized;
+                Vector3 final_trajectory = (end - start).normalized;
+
+                //Determine if it's possible to make the shot. If within the angle threshold, it is a possible match for a shot
+                float angle = Vector3.Angle(final_trajectory, start_trajectory);
+                if (angle > 135.0f)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                    //Create some cases for the bounce shot
+                }
+            }
+            //You must go around the obstruction
+            return false;
+        }
+
+    }
 }
 
 namespace TargetPath {
@@ -38,6 +101,7 @@ namespace TargetPath {
         GameObject[] balls;
         GameObject cue;
         RaycastHit collision;
+        Shot_Tools path;
         //LinkedList<Target> options;
         double best_weight = 100;
         //LineRenderer linerenderer;
@@ -49,7 +113,7 @@ namespace TargetPath {
             balls = GameObject.FindGameObjectsWithTag("Solid");
             pockets = GameObject.FindGameObjectsWithTag("Pocket");
             best_weight = 100;
-
+            path = new Shot_Tools();
         }
 
         // Update is called once per frame
@@ -62,13 +126,12 @@ namespace TargetPath {
         {
             Start();
             Clear();
-			ScreenShot();
+            //ScreenShot();
             Target Final_shot = new Target();
             foreach (GameObject ball in balls)
             {
                 Target target_path = new Target();
-                Physics.Linecast(cue.transform.position, ball.transform.position, out collision);
-                if (collision.transform.position == ball.transform.position)
+                if (path.Measure_Collision(cue.transform.position, ball.transform.position))
                 {
                     //Direction from cue to target ball
                     Vector3 ball_cue_trajectory = (cue.transform.position - ball.transform.position).normalized;
@@ -95,20 +158,7 @@ namespace TargetPath {
                     }
                 }
             }
-            GameObject line1 = new GameObject("line");
-            line1.tag = "Solution";
-            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
-            shot1.SetWidth(0.3f, 0.3f);
-
-            GameObject line2 = new GameObject("line");
-            line2.tag = "Solution";
-            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
-            shot2.SetWidth(0.3f, 0.3f);
-
-            Vector3[] coord1 = new Vector3[2] { cue.transform.position, Final_shot.position };
-            Vector3[] coord2 = new Vector3[2] { Final_shot.position, Final_shot.opt_pocket.position };
-            shot1.SetPositions(coord1);
-            shot2.SetPositions(coord2);
+            path.Draw_Path(cue.transform.position, Final_shot.position, Final_shot.opt_pocket.position);
 
         }
 
@@ -117,8 +167,7 @@ namespace TargetPath {
             Pocket optimal_pocket = new Pocket();
             foreach (GameObject pocket in pockets)
             {
-                Physics.Linecast(ball.transform.position, pocket.transform.position, out collision);
-                if (collision.transform.position == pocket.transform.position)
+                if (path.Measure_Collision(ball.transform.position, pocket.transform.position))
                 {
                     // Look into direction of cue ball to solid
                     Vector3 ball_pocket_trajectory = (pocket.transform.position - ball.transform.position).normalized;
@@ -139,7 +188,37 @@ namespace TargetPath {
             }
 
             return optimal_pocket;
+        }
 
+        public void Draw_Path(Vector3 cue, Vector3 ball, Vector3 pocket)
+        {
+            GameObject line1 = new GameObject("line");
+            line1.tag = "Solution";
+            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
+            shot1.SetWidth(0.3f, 0.3f);
+
+            GameObject line2 = new GameObject("line");
+            line2.tag = "Solution";
+            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
+            shot2.SetWidth(0.3f, 0.3f);
+
+            Vector3[] coord1 = new Vector3[2] { cue, ball };
+            Vector3[] coord2 = new Vector3[2] { ball, pocket };
+            shot1.SetPositions(coord1);
+            shot2.SetPositions(coord2);
+        }
+
+        public bool Measure_Collision(Vector3 ball, Vector3 destination)
+        {
+            Physics.Linecast(ball, destination, out collision);
+            if (collision.transform.position == destination)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void Clear()

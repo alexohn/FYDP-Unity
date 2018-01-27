@@ -24,58 +24,95 @@ namespace TargetPath
         // Update is called once per frame
         void Update()
         {
-            if(algo_start)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    RaycastHit ball_select = new RaycastHit();
-                    if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
-                    {
-                        if (ball_select.transform.gameObject.CompareTag("Cue"))
-                        {
-                            print("Now choose a pocket");
-                            algo_start = false;
-                            return;
-                        }
-                        else
-                        {
-                            print("What are you looking at?");
-                            algo_start = false;
-                        }
-                    }
-                }
-            }
 
         }
 
         public void Ricochet_Shot()
         {
             Start();
-            print("Select something");
-            StartCoroutine(Mouseclick());
-            
-
+            StartCoroutine(Select_Shot());
         }
 
-        IEnumerator Mouseclick()
+        IEnumerator Select_Shot()
         {
-            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) == true);
-            RaycastHit ball_select = new RaycastHit();
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
+            Shot_Tools path = new Shot_Tools();
+            bool flag = true;
+            
+            while(flag)
             {
-                if (ball_select.transform.gameObject.CompareTag("Cue"))
+                Mouse_Select ball = new Mouse_Select(this, BallSelect());
+                yield return ball.coroutine;
+                Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
+                yield return pocket.coroutine;
+
+                if (path.Measure_Collision(cue.transform.position, (Vector3)ball.result) || path.Measure_Collision((Vector3)ball.result, (Vector3)pocket.result))
                 {
-                    print("You selected the cue ball");
-                    algo_start = false;
-                }
-                else
-                {
-                    print("Not a proper selection?");
-                    algo_start = false;
+                    if (path.Calculate_Angle_toPocket((Vector3)pocket.result, (Vector3)ball.result, cue.transform.position))
+                    {
+                        path.Draw_Path(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
+                        flag = false;
+                        Debug.Log("Take the shot!");
+                        
+                    }
+                    else{
+                        Debug.Log("This shot is not possible. Please select another ball and pocket");
+                    }
                 }
             }
+            
         }
 
+        IEnumerator PocketSelect()
+        {
+            RaycastHit pocket_select = new RaycastHit();
+            while (true)
+            {
+                print("Select a pocket");
+                yield return new WaitUntil(() => Input.GetMouseButton(0) == true);
+
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out pocket_select))
+                {
+                    if (!pocket_select.transform.gameObject.CompareTag("Pocket"))
+                    {
+                        print("Improper Pocket seleciton. Try again");
+                        yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
+                        continue;
+                    }
+                    else
+                    {
+                        yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
+                        break;
+                    }
+                }
+            }
+            yield return (pocket_select.transform.gameObject.transform.position);
+        }
+        
+        IEnumerator BallSelect()
+        {
+            RaycastHit ball_select = new RaycastHit();
+            while (true)
+            {
+                print("Select a ball");
+                yield return new WaitUntil(() => Input.GetMouseButtonDown(0) == true);
+                
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
+                {
+                    if (!ball_select.transform.gameObject.CompareTag("Solid") && !ball_select.transform.gameObject.CompareTag("Stripe"))
+                    {
+                        print("Improper Ball Selection. Try again");
+                        yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
+                        continue;
+                    }
+                    else
+                    {
+                        yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
+                        break;
+                    }
+                }
+            }
+            yield return (ball_select.transform.gameObject.transform.position);
+        }
     }
 
 }
