@@ -6,8 +6,8 @@ namespace TargetPath
 {
     public class Ricochet : MonoBehaviour
     {
-        public GameObject pocket;
-        public GameObject ball;
+        GameObject bounce_pocket;
+        GameObject bounce_ball;
         GameObject cue;
         RaycastHit collision;
         double best_weight = 100;
@@ -51,11 +51,17 @@ namespace TargetPath
                     {
                         path.Draw_Path(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
                         flag = false;
-                        Debug.Log("Take the shot!");
+                        Debug.Log((Vector3)pocket.result);
+                        Debug.Log((Vector3)ball.result);
+                        //Debug.Log("Take the shot!");
                         
                     }
                     else{
-                        Debug.Log("This shot is not possible. Please select another ball and pocket");
+                        Debug.Log("Attempting a bounce shot");
+                        Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
+                        bounce.SelectWall();
+                        bounce.Obstruction_to_Pocket();
+                        //Debug.Log("This shot is not possible. Please select another ball and pocket");
                     }
                 }
             }
@@ -85,6 +91,7 @@ namespace TargetPath
                     }
                 }
             }
+            this.bounce_pocket = pocket_select.transform.gameObject;
             yield return (pocket_select.transform.gameObject.transform.position);
         }
         
@@ -111,6 +118,7 @@ namespace TargetPath
                     }
                 }
             }
+            this.bounce_ball = ball_select.transform.gameObject;
             yield return (ball_select.transform.gameObject.transform.position);
         }
     }
