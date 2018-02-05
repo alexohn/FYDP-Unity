@@ -87,27 +87,56 @@ namespace TargetPath
         public bool Obstruction_to_Pocket()
         {
             Shot_Tools path = new Shot_Tools();
+            RaycastHit collision;
             float incident_angle;
+            Vector3 reflect_shot = new Vector3();
+            Vector3 intercept;
+            int count = 0;
 
             //Initial intercept point
             Vector3 midpoint = (this.pocket.transform.position - this.ball.transform.position) * 0.5f + this.ball.transform.position;
-            //First find the intercept using wall1 (either the top or bottom wall)
-            Vector3 intercept = new Vector3(midpoint.x, wall1.transform.position.y, wall1.transform.position.z);
 
-            Vector3 start_trajectory = (ball.transform.position - intercept).normalized;
-            //The incident angle may change depending on whether the wall is top or bottom
-            if (this.wall1.CompareTag("Wall_Top")){
-                incident_angle = Vector3.Angle(Vector3.back, start_trajectory);
-            }
-            else
+
+            do
             {
-                incident_angle = Vector3.Angle(Vector3.forward, start_trajectory);
-            }
-            Debug.Log(incident_angle);
-            
+                //First find the intercept using wall1 (either the top or bottom wall)
+                intercept = new Vector3(midpoint.x, wall1.transform.position.y, wall1.transform.position.z);
+                Vector3 incident_shot = (intercept - ball.transform.position).normalized;
+                //The incident angle may change depending on whether the wall is top or bottom
+                if (this.wall1.CompareTag("Wall_Top"))
+                {
+                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.back * 1f);
+                   // Debug.Log(incident_shot);
+                   // Debug.Log(reflect_shot);
+                }
+                else
+                {
+                    incident_angle = Vector3.Angle(Vector3.forward, incident_shot);
+                }
 
+                Vector3 trajectory = (reflect_shot - intercept).normalized;
 
-            path.Draw_Path(cue.transform.position, ball.transform.position, intercept);
+                Physics.Raycast(intercept, reflect_shot, out collision);
+                path.Draw_Path(ball.transform.position, intercept, collision.point);
+
+                if (Vector3.Distance(collision.point, pocket.transform.position) < 10f)
+                {
+                    break;
+                }
+                if (collision.point.z > this.pocket.transform.position.z)
+                {
+                    midpoint = (midpoint - this.ball.transform.position) * 0.5f + this.ball.transform.position;
+                    count++;
+                }
+                else
+                {
+                    midpoint = (this.pocket.transform.position - midpoint) * 0.5f + midpoint;
+                    count++;
+                }
+            } while (count < 10);
+           // } while (Vector3.Distance(collision.transform.position, pocket.transform.position) > 4);
+
+            path.Draw_Path(ball.transform.position, intercept, pocket.transform.position);
             //Debug.Log(midpoint);
             
 
