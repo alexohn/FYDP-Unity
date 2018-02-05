@@ -59,8 +59,8 @@ namespace TargetPath
                     else{
                         Debug.Log("Attempting a bounce shot");
                         Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
-                        bounce.SelectWall();
-                        bounce.Obstruction_to_Pocket();
+                        Vector3 incident = bounce.Around_Obstruction_Pocket(bounce_ball.transform.position, bounce_pocket.transform.position);
+                        bounce.Obstruction_to_Ball(incident);
                         //Debug.Log("This shot is not possible. Please select another ball and pocket");
                     }
                 }
