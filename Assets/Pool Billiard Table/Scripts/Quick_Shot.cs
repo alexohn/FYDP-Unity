@@ -45,7 +45,7 @@ namespace TargetPath {
             }
         }
 
-        public void Draw_Path(Vector3 cue, Vector3 ball, Vector3 pocket)
+        public void Draw_Solution1(Vector3 cue, Vector3 ball, Vector3 pocket)
         {
             GameObject line1 = new GameObject("line");
             line1.tag = "Solution";
@@ -56,6 +56,26 @@ namespace TargetPath {
             line2.tag = "Solution";
             LineRenderer shot2 = line2.AddComponent<LineRenderer>();
             shot2.SetWidth(0.3f, 0.3f);
+
+            Vector3[] coord1 = new Vector3[2] { cue, ball };
+            Vector3[] coord2 = new Vector3[2] { ball, pocket };
+            shot1.SetPositions(coord1);
+            shot2.SetPositions(coord2);
+        }
+
+        public void Draw_Solution2(Vector3 cue, Vector3 ball, Vector3 pocket)
+        {
+            GameObject line1 = new GameObject("line");
+            line1.tag = "Solution";
+            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
+            shot1.SetWidth(0.3f, 0.3f);
+            shot1.SetColors(Color.cyan, Color.cyan);
+
+            GameObject line2 = new GameObject("line");
+            line2.tag = "Solution";
+            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
+            shot2.SetWidth(0.3f, 0.3f);
+            shot2.SetColors(Color.cyan, Color.cyan);
 
             Vector3[] coord1 = new Vector3[2] { cue, ball };
             Vector3[] coord2 = new Vector3[2] { ball, pocket };
@@ -158,7 +178,7 @@ namespace TargetPath {
                     }
                 }
             }
-            path.Draw_Path(cue.transform.position, Final_shot.position, Final_shot.opt_pocket.position);
+            path.Draw_Solution1(cue.transform.position, Final_shot.position, Final_shot.opt_pocket.position);
 
         }
 
@@ -188,37 +208,6 @@ namespace TargetPath {
             }
 
             return optimal_pocket;
-        }
-
-        public void Draw_Path(Vector3 cue, Vector3 ball, Vector3 pocket)
-        {
-            GameObject line1 = new GameObject("line");
-            line1.tag = "Solution";
-            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
-            shot1.SetWidth(0.3f, 0.3f);
-
-            GameObject line2 = new GameObject("line");
-            line2.tag = "Solution";
-            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
-            shot2.SetWidth(0.3f, 0.3f);
-
-            Vector3[] coord1 = new Vector3[2] { cue, ball };
-            Vector3[] coord2 = new Vector3[2] { ball, pocket };
-            shot1.SetPositions(coord1);
-            shot2.SetPositions(coord2);
-        }
-
-        public bool Measure_Collision(Vector3 ball, Vector3 destination)
-        {
-            Physics.Linecast(ball, destination, out collision);
-            if (collision.transform.position == destination)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         public void Clear()

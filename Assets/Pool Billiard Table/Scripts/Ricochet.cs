@@ -49,7 +49,7 @@ namespace TargetPath
                 {
                     if (path.Calculate_Angle_toPocket((Vector3)pocket.result, (Vector3)ball.result, cue.transform.position))
                     {
-                        path.Draw_Path(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
+                        path.Draw_Solution1(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
                         flag = false;
                         Debug.Log((Vector3)pocket.result);
                         Debug.Log((Vector3)ball.result);
