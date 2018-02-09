@@ -24,31 +24,35 @@ namespace TargetPath
             this.scenario = 0;
         }
 
-        private int DetermineCase()
+        public int DetermineCase()
         {
             Shot_Tools path = new Shot_Tools();
-            //Determine if there is obstruction between ball and cue. This scenario is assigned 4
-            if (!path.Measure_Collision(cue.transform.position, ball.transform.position)) {
-                this.scenario = this.scenario + 4;
+            Vector3 incidenttrajectory = new Vector3();
+            Vector3 impactpoint = new Vector3();
+
+            //Determine if there is an obstruction between the pocket and the ball
+            if (!path.Measure_Collision(pocket.transform.position, ball.transform.position))
+            {
+                incidenttrajectory = Around_Obstruction_Pocket(this.ball.transform.position, this.pocket.transform.position);
+                impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
+            }
+            else
+            {
+                incidenttrajectory = StraightShot(this.ball.transform.position, pocket.transform.position);
+                impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
             }
 
-            //Determine if there is obstruction between pocket and ball. This scenario is assigned 2
-            if (!path.Measure_Collision(pocket.transform.position, ball.transform.position)) {
-                this.scenario = this.scenario + 2;
+            //Determine if there is obstruction between required impact point and cue. 
+            if (!path.Measure_Collision(this.cue.transform.position, impactpoint)) {
+                Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory); 
             }
-
-            //Determine if the cue ball can not reach the angle required to sink the ball in the associated pocket. This scenario is assigned 1
-            if (!path.Calculate_Angle_toPocket(pocket.transform.position, ball.transform.position, cue.transform.position)) {
-                this.scenario = this.scenario + 1;
+            else
+            {
+                StraightShot(this.cue.transform.position, impactpoint);
             }
-
-            if (this.scenario != 4 && this.scenario != 2 && this.scenario != 1){
-                Debug.Log("The bounce shot is currently not possible with todays technology");
-                return -1;
-            }
-            else{
-                return 0;
-            }  
+            
+            return 0;
+            
         }
         //Determine where to bounce the ball, based on the location of all the balls
 
@@ -97,9 +101,13 @@ namespace TargetPath
                 return intercept;
             }
             error = collision.point - destination;
+            if(Mathf.Abs(error.x) < 1f)
+            {
+                return intercept;
+            }
             if (wall.CompareTag("Wall_Top") || wall.CompareTag("Wall_Bottom"))
             {
-                intercept.Set(intercept.x - error.x * 0.75f, intercept.y, intercept.z);
+                intercept.Set(intercept.x - (error.x/-error.x), intercept.y, intercept.z);
             }
             else
             {
@@ -117,79 +125,16 @@ namespace TargetPath
             Vector3 error;
             int count = 0;
             SelectWall(ball, pocket);
-            Debug.Log(this.wall1.tag);
-            Debug.Log(this.wall2.tag);
 
             //Find first solution using wall1
             Vector3 midpoint = (pocket - ball) * 0.5f + ball;
-            do
-            {
-                //First find the intercept using wall1 (either the top or bottom wall)
-                intercept = new Vector3(midpoint.x, wall1.transform.position.y, wall1.transform.position.z);
-                Vector3 incident_shot = (intercept - ball).normalized;
-
-                //The incident angle may change depending on whether the wall is top or bottom
-                if (this.wall1.CompareTag("Wall_Top"))
-                {
-                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.back * 1f);
-                }
-                else
-                {
-                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.forward* 1f);
-                }
-
-                Physics.Raycast(intercept, reflect_shot, out collision);
-                if (Vector3.Distance(collision.point, pocket) < 1f)
-                {
-                    break;
-                }
-                error = collision.point - pocket;
-                if (collision.point.z > pocket.z)
-                {
-                    midpoint = (midpoint - ball) * 0.5f + ball;
-                    count++;
-                }
-                else
-                {
-                    midpoint = (pocket - midpoint) * 0.5f + midpoint;
-                    count++;
-                }
-            } while (count < 3);
-            Vector3 solution1_intercept = intercept;
-            path.Draw_Solution1(ball, solution1_intercept, collision.point);
-
-            if (path.Measure_Collision(intercept, pocket))
-            {
-                //Will most likely need to return the incident trajectory
-                Debug.Log((ball - intercept).normalized);
-                return (ball-intercept).normalized;
-            }
-            else
-            {
-
-                Debug.Log("The shot cannot be bounced in");
-                return (ball-intercept).normalized;
-            }
-        }
-
-        public Vector3 Around_Obstruction_Ball(Vector3 ball, Vector3 destination)
-        {
-            Shot_Tools path = new Shot_Tools();
-            RaycastHit collision;
-            Vector3 reflect_shot = new Vector3();
-            Vector3 intercept;
-            Vector3 error;
-            int count = 0;
-            SelectWall(ball, destination);
-
-            //First solution using wall1
-            Vector3 midpoint = (destination - ball) * 0.5f + ball;
             intercept = new Vector3(midpoint.x, wall1.transform.position.y, wall1.transform.position.z);
             do
             {
                 //First find the intercept using wall1 (either the top or bottom wall)
-                
+
                 Vector3 incident_shot = (intercept - ball).normalized;
+
                 //The incident angle may change depending on whether the wall is top or bottom
                 if (this.wall1.CompareTag("Wall_Top"))
                 {
@@ -199,123 +144,174 @@ namespace TargetPath
                 {
                     reflect_shot = Vector3.Reflect(incident_shot, Vector3.forward * 1f);
                 }
+
                 Physics.Raycast(intercept, reflect_shot, out collision);
-                intercept = Error_Correction(collision, destination, intercept, this.wall1);
-                /*
-                if (Vector3.Distance(collision.point, destination) < 1f)
+                if (Vector3.Distance(collision.point, pocket) < 1f)
                 {
                     break;
                 }
-                error = collision.point - destination;
-                if (Mathf.Abs(error.x) > 0f)
+                error = collision.point - pocket;
+                path.Draw_Solution1(ball, intercept, collision.point);
+                if (Mathf.Abs(error.x) >= Mathf.Abs(error.z))
                 {
-                    intercept.Set(intercept.x - error.x*0.75f, intercept.y, intercept.z);
-                    count++;
+                    if (this.quadrant == 2 || this.quadrant == 3)
+                    {
+                        intercept.Set(intercept.x - Mathf.Abs(error.x*0.75f), intercept.y, intercept.z);
+                    }
+                    else
+                    {
+                        intercept.Set(intercept.x + Mathf.Abs(error.x*0.75f), intercept.y, intercept.z);
+                    }
                 }
                 else
                 {
-                    break;
+                    if (this.quadrant == 2 || this.quadrant == 3)
+                    {
+                        intercept.Set(intercept.x + Mathf.Abs(error.x*0.75f), intercept.y, intercept.z);
+                    }
+                    else
+                    {
+                        intercept.Set(intercept.x - Mathf.Abs(error.x*0.75f), intercept.y, intercept.z);
+                    }
+                    
                 }
-                */
                 count++;
-            } while (count < 10);
-            Vector3 Solution1_intercept = intercept;
-            path.Draw_Solution1(ball, Solution1_intercept, collision.point);
-            return (ball - Solution1_intercept).normalized;
+
+            } while (count < 5);
+            Vector3 solution1_intercept = intercept;
+            path.Draw_Solution1(ball, solution1_intercept, collision.point);
+            return (ball-intercept).normalized;
+        }
+
+        public Vector3 Around_Obstruction_Ball(Vector3 ball, Vector3 impactpoint, Vector3 incident_trajectory)
+        {
+            Shot_Tools path = new Shot_Tools();
+            RaycastHit collision;
+            RaycastHit wall;
+
+            Plane intersect;
+            Ray reflect_projection;
+            float enter;
+
+            Vector3 reflect_shot = new Vector3();
+            Vector3 intercept;
+            int count = 0;
+
+            Vector3 midpoint = (impactpoint - ball) * 0.5f + ball;
+            //Determine which wall to react the impact point
+
+            Physics.Raycast(impactpoint, incident_trajectory, out wall);
+            SelectWall(ball, impactpoint);
+
+            if(wall.collider.tag != wall1.tag)
+            {
+                this.wall1 = GameObject.FindGameObjectWithTag(wall.collider.tag);
+            }
+
+            Vector3 solutionintercept = RecursiveIntercept(impactpoint, ball, impactpoint, ball);
+            path.Draw_Solution1(ball, solutionintercept, impactpoint);
+            return solutionintercept;
             /*
-            //Determine Second Solution using wall2
-            midpoint = (destination - ball) * 0.5f + ball;
-            intercept = new Vector3(wall2.transform.position.x, wall2.transform.position.y, midpoint.z);
+            intercept = new Vector3(midpoint.x, wall1.transform.position.y, wall1.transform.position.z);
+            intersect = new Plane(Vector3.left, impactpoint);
             do
             {
-                //First find the intercept using wall1 (either the top or bottom wall)
-
-                Vector3 incident_shot = (intercept - ball).normalized;
-                //The incident angle may change depending on whether the wall is top or bottom
-                if (this.wall1.CompareTag("Wall_Left"))
-                {
-                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.left * 1f);
-                }
-                else
-                {
-                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.right * 1f);
-                }
-                Physics.Raycast(intercept, reflect_shot, out collision);
-                path.Draw_Solution2(ball, intercept, collision.point);
-
-                if (Vector3.Distance(collision.point, destination) < 1f)
-                {
-                    break;
-                }
-                error = collision.point - destination;
-                if (Mathf.Abs(error.z) > 0f)
-                {
-                    intercept.Set(intercept.x, intercept.y, intercept.z-error.z*0.75f);
-                    count++;
-                }
-                else
-                {
-                    break;
-                }
                 
-            } while (count < 10);
-            Vector3 Solution2_intercept = intercept;
-            path.Draw_Solution2(ball, Solution2_intercept, collision.point);
+                //First find the intercept using wall1 (either the top or bottom wall)
+                Vector3 incident_shot = (intercept - ball).normalized;
+                
+                //The incident angle may change depending on whether the wall is top or bottom
+                if (this.wall1.CompareTag("Wall_Top"))
+                {
+                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.back * 1f);
+                }
+                else
+                {
+                    reflect_shot = Vector3.Reflect(incident_shot, Vector3.forward * 1f);
+                }
+                reflect_projection = new Ray(intercept, reflect_shot);
+                if (intersect.Raycast(reflect_projection, out enter))
+                {
+                    Vector3 hitpoint = reflect_projection.GetPoint(enter);
+                    path.Draw_line(intercept, hitpoint);
+                }
 
-
-            if (path.Measure_Collision(intercept, destination))
-            {
-                //Will most likely need to return the incident trajectory
-                return (ball - Solution1_intercept).normalized;
-            }
-            else
-            {
-
-                Debug.Log("The shot cannot be bounced in");
-                return (ball - Solution1_intercept).normalized;
-            }
+                Physics.Raycast(intercept, reflect_shot, out collision);
+                //path.Draw_Solution1(ball, intercept, collision.point);
+                intercept = Error_Correction(collision, impactpoint, intercept, this.wall1);
+                count++;
+            } while (count < 3);
+            Vector3 Solution1_intercept = intercept;
+            //path.Draw_Solution1(ball, Solution1_intercept, collision.point);
+            return (ball - Solution1_intercept).normalized;
             */
         }
 
-        public bool Cue_to_Ball_Bounce_Angle(Vector3 required_trajectory)
+        public Vector3 StraightShot(Vector3 ball, Vector3 destination)
         {
             Shot_Tools path = new Shot_Tools();
-            if (path.Measure_Collision(this.cue.transform.position, this.ball.transform.position))
+            path.Draw_line(ball, destination);
+            return (ball - destination).normalized;
+        }
+
+        private Vector3 RecursiveIntercept(Vector3 left, Vector3 right, Vector3 impactpoint, Vector3 ball)
+        {
+            Plane intersect_plane;
+            Ray reflect_projection;
+            float enter;
+            Vector3 reflect_shot;
+            Shot_Tools path = new Shot_Tools();
+
+            Vector3 intercept = new Vector3((left.x + right.x) * 0.5f, this.wall1.transform.position.y, this.wall1.transform.position.z);
+            if (this.quadrant == 1 || this.quadrant == 2)
             {
-                Vector3 start_trajectory = (this.cue.transform.position - this.ball.transform.position).normalized;
-                float angle = Vector3.Angle(required_trajectory, start_trajectory);
-                if (angle > 135.0f)
+                intersect_plane = new Plane(Vector3.left, impactpoint);
+            }
+            else
+            {
+                intersect_plane = new Plane(Vector3.right, impactpoint);
+            }
+                
+            Vector3 incident_shot = (intercept - ball).normalized;
+
+            //The incident angle may change depending on whether the wall is top or bottom
+            if (this.wall1.CompareTag("Wall_Top"))
+            {
+                reflect_shot = Vector3.Reflect(incident_shot, Vector3.back * 1f);
+            }
+            else
+            {
+                reflect_shot = Vector3.Reflect(incident_shot, Vector3.forward * 1f);
+            }
+
+            reflect_projection = new Ray(intercept, reflect_shot);
+            if (intersect_plane.Raycast(reflect_projection, out enter))
+            {
+                Vector3 hitpoint = reflect_projection.GetPoint(enter);
+                //path.Draw_Solution1(ball, intercept, impactpoint);
+                if (Vector3.Distance(hitpoint, impactpoint) < 0.5f)
+                    return intercept;
+                if (this.quadrant == 2 || this.quadrant == 1)
                 {
-                    //Not required to do bounce shot, just find the actual place to hit from
-                    path.Draw_Solution1 (this.cue.transform.position, this.ball.transform.position, required_trajectory);//------------------------------------------------------------------------This part is most likely wrong
-                    return true;
+                    if (hitpoint.z > impactpoint.z)
+                        return RecursiveIntercept(intercept, right, impactpoint, ball);
+                    else
+                        return RecursiveIntercept(left, intercept, impactpoint, ball);
                 }
                 else
                 {
-                    //return Obstruction_to_Ball(required_trajectory);
-                    return true;
+                    if (hitpoint.z > impactpoint.z)
+                        return RecursiveIntercept(left, intercept, impactpoint, ball);
+                    else
+                        return RecursiveIntercept(intercept, right, impactpoint, ball);
                 }
             }
             else
             {
-                //return Obstruction_to_Ball(required_trajectory);
-                return true;
+                Debug.Log("Missed the target");
+                return intercept;
             }
             
-        }
-        public bool Obstruction_to_Ball(Vector3 Incident_Trajectory)
-        {
-            Shot_Tools path = new Shot_Tools();
-            //If you know the trajectory, you know the exact position the ball needs to be, which is one diameter away from target ball, in the direction of required trajectory
-
-            Vector3 impactpoint = Vector3.MoveTowards(this.ball.transform.position, Incident_Trajectory, -0.0575f * 5); //Need to determine radius of ball
-            Around_Obstruction_Ball(this.cue.transform.position, impactpoint);
-            return true;
-        }
-        
-        public bool Improper_Angle()
-        {
-            return false;
         }
         
     }

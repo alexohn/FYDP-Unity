@@ -58,9 +58,17 @@ namespace TargetPath
                     }
                     else{
                         Debug.Log("Attempting a bounce shot");
+                        System.DateTime start = System.DateTime.Now;
                         Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
+                        bounce.DetermineCase();
+                        System.DateTime end = System.DateTime.Now;
+                        System.TimeSpan duration = end - start;
+                        Debug.Log(duration);
+                        flag = false;
+                        /*
                         Vector3 incident = bounce.Around_Obstruction_Pocket(bounce_ball.transform.position, bounce_pocket.transform.position);
                         bounce.Obstruction_to_Ball(incident);
+                        */
                         //Debug.Log("This shot is not possible. Please select another ball and pocket");
                     }
                 }

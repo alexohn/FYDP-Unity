@@ -5,6 +5,7 @@ namespace TargetPath {
     public class Pocket
     {
         public float distance;
+        public Vector3 trajectory;
         public Vector3 position;
         public bool valid_path;
 
@@ -18,7 +19,7 @@ namespace TargetPath {
     public class Target
     {
         public float distance;
-        public Vector3 position;
+        public Vector3 impactpoint;
         public bool valid_path;
         public Pocket opt_pocket;
 
@@ -63,7 +64,7 @@ namespace TargetPath {
             shot2.SetPositions(coord2);
         }
 
-        public void Draw_Solution2(Vector3 cue, Vector3 ball, Vector3 pocket)
+        public void Draw_line(Vector3 ball, Vector3 destination)
         {
             GameObject line1 = new GameObject("line");
             line1.tag = "Solution";
@@ -71,16 +72,8 @@ namespace TargetPath {
             shot1.SetWidth(0.3f, 0.3f);
             shot1.SetColors(Color.cyan, Color.cyan);
 
-            GameObject line2 = new GameObject("line");
-            line2.tag = "Solution";
-            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
-            shot2.SetWidth(0.3f, 0.3f);
-            shot2.SetColors(Color.cyan, Color.cyan);
-
-            Vector3[] coord1 = new Vector3[2] { cue, ball };
-            Vector3[] coord2 = new Vector3[2] { ball, pocket };
+            Vector3[] coord1 = new Vector3[2] { ball, destination };
             shot1.SetPositions(coord1);
-            shot2.SetPositions(coord2);
         }
 
         public bool Calculate_Angle_toPocket(Vector3 end, Vector3 start, Vector3 cue)
@@ -108,6 +101,11 @@ namespace TargetPath {
             }
             //You must go around the obstruction
             return false;
+        }
+
+        public Vector3 Impactpoint (Vector3 ball, Vector3 trajectory)
+        {
+            return Vector3.MoveTowards(ball, trajectory, -0.0575f * 5);
         }
 
     }
@@ -148,6 +146,7 @@ namespace TargetPath {
             Clear();
             //ScreenShot();
             Target Final_shot = new Target();
+            Vector3 requiredtrajectory;
             foreach (GameObject ball in balls)
             {
                 Target target_path = new Target();
@@ -160,7 +159,8 @@ namespace TargetPath {
                     {
                         target_path.valid_path = true;
                         target_path.distance = Vector3.Distance(cue.transform.position, ball.transform.position);
-                        target_path.position = ball.transform.position;
+                        requiredtrajectory = (ball.transform.position - target_path.opt_pocket.position).normalized;
+                        target_path.impactpoint = path.Impactpoint(ball.transform.position, requiredtrajectory); //Need to determine radius of ball
                     }
                 }
                 if (target_path.valid_path == true)
@@ -168,7 +168,7 @@ namespace TargetPath {
                     //Determine if it's the best trajectory found 
                     double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
                     print(shot_risk);
-                    print(target_path.position);
+                    print(target_path.impactpoint);
                     print(target_path.distance);
                     print(target_path.opt_pocket.distance);
                     if (shot_risk < best_weight)
@@ -178,12 +178,13 @@ namespace TargetPath {
                     }
                 }
             }
-            path.Draw_Solution1(cue.transform.position, Final_shot.position, Final_shot.opt_pocket.position);
+            path.Draw_Solution1(cue.transform.position, Final_shot.impactpoint, Final_shot.opt_pocket.position);
 
         }
 
         Pocket Ball_to_Pocket(GameObject ball, Vector3 cue_ball_trajectory)
         {
+            RaycastHit collision;
             Pocket optimal_pocket = new Pocket();
             foreach (GameObject pocket in pockets)
             {
@@ -201,6 +202,7 @@ namespace TargetPath {
                         {
                             optimal_pocket.valid_path = true;
                             optimal_pocket.distance = Vector3.Distance(pocket.transform.position, ball.transform.position);
+                            optimal_pocket.trajectory = (ball.transform.position - pocket.transform.position).normalized;
                             optimal_pocket.position = pocket.transform.position;
                         }
                     }
