@@ -35,6 +35,7 @@ namespace TargetPath {
         public bool Measure_Collision(Vector3 ball, Vector3 destination)
         {
             RaycastHit collision; 
+
             Physics.Linecast(ball, destination, out collision);
             if (collision.transform.position == destination)
             {
@@ -45,6 +46,26 @@ namespace TargetPath {
                 return false;
             }
         }
+
+        public bool Measure_Collision_to_Impact(Vector3 ball, Vector3 destination, Vector2 requiredtrajectory)
+        {
+            RaycastHit collision;
+            Ray castdirection;
+
+
+            castdirection = new Ray(ball, (destination - ball).normalized);
+            if (!Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination)) && Vector3.Angle(requiredtrajectory, (ball-destination).normalized) > 135f)
+            {
+                
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
 
         public void Draw_Solution1(Vector3 cue, Vector3 ball, Vector3 pocket)
         {
@@ -105,7 +126,9 @@ namespace TargetPath {
 
         public Vector3 Impactpoint (Vector3 ball, Vector3 trajectory)
         {
-            return Vector3.MoveTowards(ball, trajectory, -0.0575f * 5);
+            //return Vector3.MoveTowards(ball, trajectory, -0.0575f * 5);
+            //return Vector3.MoveTowards(ball, trajectory, -1.5f);
+            return ball + (trajectory * 1.5f);
         }
 
     }
@@ -144,6 +167,7 @@ namespace TargetPath {
         {
             Start();
             Clear();
+            System.DateTime start = System.DateTime.Now;
             //ScreenShot();
             Target Final_shot = new Target();
             Vector3 requiredtrajectory;
@@ -167,10 +191,12 @@ namespace TargetPath {
                 {
                     //Determine if it's the best trajectory found 
                     double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
+                    /*
                     print(shot_risk);
                     print(target_path.impactpoint);
                     print(target_path.distance);
                     print(target_path.opt_pocket.distance);
+                    */
                     if (shot_risk < best_weight)
                     {
                         Final_shot = target_path;
@@ -179,6 +205,9 @@ namespace TargetPath {
                 }
             }
             path.Draw_Solution1(cue.transform.position, Final_shot.impactpoint, Final_shot.opt_pocket.position);
+            System.DateTime end = System.DateTime.Now;
+            System.TimeSpan duration = end - start;
+            Debug.Log(duration);
 
         }
 

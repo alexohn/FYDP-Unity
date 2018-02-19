@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 namespace TargetPath
 {
     public class Ricochet : MonoBehaviour
@@ -19,6 +21,8 @@ namespace TargetPath
         void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
+
+
         }
 
         // Update is called once per frame
@@ -45,20 +49,24 @@ namespace TargetPath
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
                 yield return pocket.coroutine;
 
+                System.DateTime start = System.DateTime.Now;
                 if (path.Measure_Collision(cue.transform.position, (Vector3)ball.result) || path.Measure_Collision((Vector3)ball.result, (Vector3)pocket.result))
                 {
                     if (path.Calculate_Angle_toPocket((Vector3)pocket.result, (Vector3)ball.result, cue.transform.position))
                     {
                         path.Draw_Solution1(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
                         flag = false;
-                        Debug.Log((Vector3)pocket.result);
-                        Debug.Log((Vector3)ball.result);
+                        //Debug.Log((Vector3)pocket.result);
+                        //Debug.Log((Vector3)ball.result);
+                        System.DateTime end = System.DateTime.Now;
+                        System.TimeSpan duration = end - start;
+                        Debug.Log(duration);
                         //Debug.Log("Take the shot!");
-                        
+
                     }
                     else{
                         Debug.Log("Attempting a bounce shot");
-                        System.DateTime start = System.DateTime.Now;
+                        start = System.DateTime.Now;
                         Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
                         bounce.DetermineCase();
                         System.DateTime end = System.DateTime.Now;
