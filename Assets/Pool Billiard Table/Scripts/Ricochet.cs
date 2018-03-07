@@ -34,6 +34,7 @@ namespace TargetPath
         public void Ricochet_Shot()
         {
             Start();
+            Clear();
             StartCoroutine(Select_Shot());
         }
 
@@ -41,49 +42,20 @@ namespace TargetPath
         {
             Shot_Tools path = new Shot_Tools();
             bool flag = true;
+            int run = 1;
             
-            while(flag)
+            while(run != 0)
             {
                 Mouse_Select ball = new Mouse_Select(this, BallSelect());
                 yield return ball.coroutine;
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
                 yield return pocket.coroutine;
 
-                System.DateTime start = System.DateTime.Now;
                 Debug.Log("Attempting a bounce shot");
-                start = System.DateTime.Now;
                 Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
-                bounce.DetermineCase();
-                System.DateTime end = System.DateTime.Now;
-                System.TimeSpan duration = end - start;
-                Debug.Log(duration);
+                run = bounce.DetermineCase();
 
-                /*
-                if (path.Measure_Collision(cue.transform.position, (Vector3)ball.result) || path.Measure_Collision((Vector3)ball.result, (Vector3)pocket.result))
-                {
-                    if (path.Calculate_Angle_toPocket((Vector3)pocket.result, (Vector3)ball.result, cue.transform.position))
-                    {
-                        path.Draw_Solution1(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
-                        flag = false;
-                        System.DateTime end = System.DateTime.Now;
-                        System.TimeSpan duration = end - start;
-                        Debug.Log(duration);
-                        //Debug.Log("Take the shot!");
 
-                    }
-                    else{
-                        Debug.Log("Attempting a bounce shot");
-                        start = System.DateTime.Now;
-                        Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
-                        bounce.DetermineCase();
-                        System.DateTime end = System.DateTime.Now;
-                        System.TimeSpan duration = end - start;
-                        Debug.Log(duration);
-                        path.ScreenShot();
-                        flag = false;
-                    }
-                }
-                */
             }
             
         }
@@ -140,6 +112,16 @@ namespace TargetPath
             }
             this.bounce_ball = ball_select.transform.gameObject;
             yield return (ball_select.transform.gameObject.transform.position);
+        }
+
+        public void Clear()
+        {
+            GameObject[] Lines = GameObject.FindGameObjectsWithTag("Solution");
+
+            foreach (GameObject line in Lines)
+            {
+                GameObject.Destroy(line);
+            }
         }
     }
 

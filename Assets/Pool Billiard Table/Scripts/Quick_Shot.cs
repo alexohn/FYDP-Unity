@@ -52,11 +52,15 @@ namespace TargetPath {
             RaycastHit collision;
             Ray castdirection;
 
-
             castdirection = new Ray(ball, (destination - ball).normalized);
-            if (!Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination)) && Vector3.Angle(requiredtrajectory, (ball-destination).normalized) > 135f)
+            bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
+            //float angle = Vector3.Angle(requiredtrajectory, (ball - destination).normalized);
+            float angle = Vector3.Angle((ball-destination).normalized, requiredtrajectory);
+
+            //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
+            if (!check && angle > 135f)
+            //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
             {
-                
                 return true;
             }
             else

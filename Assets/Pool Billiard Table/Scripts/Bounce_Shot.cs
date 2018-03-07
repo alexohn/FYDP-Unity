@@ -34,6 +34,7 @@ namespace TargetPath
             Shot_Tools path = new Shot_Tools();
             Vector3 incidenttrajectory = new Vector3();
             Vector3 impactpoint = new Vector3();
+            Vector3 check;
             count = 0;
             pocketcount = 0;
 
@@ -41,25 +42,37 @@ namespace TargetPath
             if (!path.Measure_Collision(pocket.transform.position, ball.transform.position))
             {
                 incidenttrajectory = Around_Obstruction_Pocket(this.ball.transform.position, this.pocket.transform.position);
-                impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
             }
             else
             {
                 incidenttrajectory = StraightShot(this.ball.transform.position, pocket.transform.position);
-                impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
             }
+
+            if (incidenttrajectory == Vector3.zero)
+            {
+                Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
+                return 1;
+            }
+
+            impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
 
             //Determine if there is obstruction between required impact point and cue. 
             if (!path.Measure_Collision_to_Impact(this.cue.transform.position, impactpoint, incidenttrajectory)) {
                 SelectWall(impactpoint, this.ball.transform.position);
                 //There might be an issue here, because this is changing the quadrant of the shot
-                Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory); 
+                check = Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory); 
             }
             else
             {
-                StraightShot(this.cue.transform.position, impactpoint);
+                check = StraightShot(this.cue.transform.position, impactpoint);
             }
-            
+
+            if (check == Vector3.zero)
+            {
+                Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
+                return 1;
+            }
+
             return 0;
             
         }
@@ -147,9 +160,21 @@ namespace TargetPath
             //Determine which wall to react the impact point
             
             Vector3 intercept = RecursivePocket(pocket, ball, pocket, ball);
-            path.Draw_Solution1(ball, intercept, pocket);
-            
-            return (ball-intercept).normalized;
+
+
+            if (!path.Measure_Collision(ball, intercept) || !path.Measure_Collision(intercept, pocket))
+            {
+                Debug.Log("The shot is not possible");
+                return new Vector3();
+            }
+            else
+            {
+                path.Draw_Solution1(ball, intercept, pocket);
+                return (ball - intercept).normalized;
+
+            }
+
+
         }
 
         public Vector3 Around_Obstruction_Ball(Vector3 ball, Vector3 impactpoint, Vector3 incident_trajectory)
@@ -163,13 +188,32 @@ namespace TargetPath
             int count = 0;
 
             Vector3 midpoint = (impactpoint - ball) * 0.5f + ball;
-            //Determine which wall to react the impact point
 
             Physics.Raycast(impactpoint, incident_trajectory, out wall);
 
             Vector3 solutionintercept = RecursiveIntercept(impactpoint, ball, impactpoint, ball);
-            path.Draw_Solution1(ball, solutionintercept, impactpoint);
-            return solutionintercept;
+
+            bool check = path.Measure_Collision(ball, solutionintercept);
+
+
+            //There is a null exception being thrown here. Don't really know why
+            //bool check2 = path.Measure_Collision(solutionintercept, impactpoint);
+
+            /*
+            if (!path.Measure_Collision(ball, solutionintercept) || !path.Measure_Collision(solutionintercept, impactpoint))
+            {
+                Debug.Log("The shot is not possible. Select either a different pocket or ball");
+                return new Vector3();
+            }
+            else
+            */
+            {
+                path.Draw_Solution1(ball, solutionintercept, impactpoint);
+                return solutionintercept;
+            }
+                
+
+
         }
 
         public Vector3 StraightShot(Vector3 ball, Vector3 destination)
