@@ -15,6 +15,7 @@ namespace TargetPath
         double best_weight = 100;
         bool algo_start = false;
         bool cue_select = false;
+        Canvas Textbox;
 
 
         // Use this for initialization
@@ -108,7 +109,7 @@ namespace TargetPath
                 
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
                 {
-                    if (!ball_select.transform.gameObject.CompareTag("Solid") && !ball_select.transform.gameObject.CompareTag("Stripe"))
+                    if (!ball_select.transform.gameObject.CompareTag("Solid"))
                     {
                         print("Improper Ball Selection. Try again");
                         yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);

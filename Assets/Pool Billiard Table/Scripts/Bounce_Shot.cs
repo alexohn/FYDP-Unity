@@ -54,7 +54,6 @@ namespace TargetPath
                 if (pocket_type == 0)
                     incidenttrajectory = Around_Obstruction_Pocket(this.ball.transform.position, this.pocket.transform.position);
                 else
-                    Debug.Log("Attempting middle pocket");
                     incidenttrajectory = Around_Obstruction_Pocket_Middle(this.ball.transform.position, this.pocket.transform.position);
 
             }
@@ -72,7 +71,9 @@ namespace TargetPath
             impactpoint = path.Impactpoint(this.ball.transform.position, incidenttrajectory);
 
             //Determine if there is obstruction between required impact point and cue. 
-            if (!path.Measure_Collision_to_Impact(this.cue.transform.position, impactpoint, incidenttrajectory)) {
+            //if (!path.Measure_Collision_to_Impact(this.cue.transform.position, impactpoint, incidenttrajectory)) {
+            if (!path.Measure_Collision_to_Impact(this.cue.transform.position, impactpoint, this.ball.transform.position, incidenttrajectory))
+            {
                 SelectWall(impactpoint, this.ball.transform.position);
                 //There might be an issue here, because this is changing the quadrant of the shot
                 check = Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory); 
@@ -167,8 +168,6 @@ namespace TargetPath
             Vector3 error;
             int count = 0;
             SelectWall(ball, pocket);
-            Debug.Log("This quadrant");
-            Debug.Log(this.quadrant);
 
             //Find first solution using wall1
             Vector3 midpoint = (pocket - ball) * 0.5f + ball;
@@ -196,8 +195,6 @@ namespace TargetPath
         {
             Shot_Tools path = new Shot_Tools();
             SelectWall(ball, pocket);
-            Debug.Log("This quadrant");
-            Debug.Log(this.quadrant);
 
             //Find first solution using wall1
             Vector3 midpoint = (pocket - ball) * 0.5f + ball;
@@ -396,18 +393,6 @@ namespace TargetPath
                 wall2_reflect_shot = Vector3.Reflect(incident_shot, Vector3.left * 1f);
             }
 
-
-            /*
-            Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1);
-            if (collision1.collider == null)
-            {
-                Debug.Log("Something weird happened: wall1");
-                Physics.Raycast(wall1_intercept, wall1_reflect_shot, 100);
-
-                
-            }
-            */
-
             if(!Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1))
             {
                 Debug.Log("Something weird happened: wall1 in middle function");
@@ -464,6 +449,7 @@ namespace TargetPath
 
 
         }
+
         private Vector3 RecursiveIntercept(Vector3 left, Vector3 right, Vector3 impactpoint, Vector3 ball)
         {
             Plane intersect_plane;

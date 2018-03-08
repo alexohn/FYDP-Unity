@@ -47,24 +47,32 @@ namespace TargetPath {
             }
         }
 
-        public bool Measure_Collision_to_Impact(Vector3 ball, Vector3 destination, Vector2 requiredtrajectory)
+        public bool Measure_Collision_to_Impact(Vector3 cue, Vector3 impact, Vector3 ball, Vector2 requiredtrajectory)
         {
             RaycastHit collision;
             Ray castdirection;
+            Shot_Tools path = new Shot_Tools();
 
-            castdirection = new Ray(ball, (destination - ball).normalized);
-            bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
-            //float angle = Vector3.Angle(requiredtrajectory, (ball - destination).normalized);
-            float angle = Vector3.Angle((ball-destination).normalized, requiredtrajectory);
+            //castdirection = new Ray(ball, (destination - ball).normalized);
+            //bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
+            bool check = Physics.Linecast(cue, impact);
 
+
+            //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
+            float angle = Vector3.Angle((cue - ball).normalized, (impact-ball).normalized);
+
+            Debug.Log(check);
+            Debug.Log(angle);
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
-            if (!check && angle > 135f)
+            if (!check && angle <= 45f)
             //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
             {
+                //If there is nothing in the way and the you can reach the impact point
                 return true;
             }
             else
             {
+                //If there is something in the way or you cannot reach the target point
                 return false;
             }
 
@@ -130,8 +138,6 @@ namespace TargetPath {
 
         public Vector3 Impactpoint (Vector3 ball, Vector3 trajectory)
         {
-            //return Vector3.MoveTowards(ball, trajectory, -0.0575f * 5);
-            //return Vector3.MoveTowards(ball, trajectory, -1.5f);
             return ball + (trajectory * 1.5f);
         }
 
