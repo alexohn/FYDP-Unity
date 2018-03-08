@@ -35,19 +35,34 @@ namespace TargetPath
             Vector3 incidenttrajectory = new Vector3();
             Vector3 impactpoint = new Vector3();
             Vector3 check;
+            int pocket_type = 0;
             count = 0;
             pocketcount = 0;
+            
+
+            foreach (Transform child in pocket.transform)
+            {
+                if (child.gameObject.CompareTag("Middle_Pocket"))
+                    pocket_type = 1;
+                else if (child.gameObject.CompareTag("Corner_Pocket"))
+                    pocket_type = 0;
+            }
 
             //Determine if there is an obstruction between the pocket and the ball
             if (!path.Measure_Collision(pocket.transform.position, ball.transform.position))
             {
-                incidenttrajectory = Around_Obstruction_Pocket(this.ball.transform.position, this.pocket.transform.position);
+                if (pocket_type == 0)
+                    incidenttrajectory = Around_Obstruction_Pocket(this.ball.transform.position, this.pocket.transform.position);
+                else
+                    Debug.Log("Attempting middle pocket");
+                    incidenttrajectory = Around_Obstruction_Pocket_Middle(this.ball.transform.position, this.pocket.transform.position);
+
             }
             else
             {
                 incidenttrajectory = StraightShot(this.ball.transform.position, pocket.transform.position);
             }
-
+       
             if (incidenttrajectory == Vector3.zero)
             {
                 Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
@@ -177,6 +192,36 @@ namespace TargetPath
 
         }
 
+        public Vector3 Around_Obstruction_Pocket_Middle(Vector3 ball, Vector3 pocket)
+        {
+            Shot_Tools path = new Shot_Tools();
+            SelectWall(ball, pocket);
+            Debug.Log("This quadrant");
+            Debug.Log(this.quadrant);
+
+            //Find first solution using wall1
+            Vector3 midpoint = (pocket - ball) * 0.5f + ball;
+            //Determine which wall to react the impact point
+
+            Vector3 intercept = RecursivePocket_Middle(pocket, ball, pocket, ball);
+
+            /*
+            if (!path.Measure_Collision(ball, intercept) || !path.Measure_Collision(intercept, pocket))
+            {
+                Debug.Log("The shot is not possible");
+                return new Vector3();
+            }
+            */
+           // else
+            //{
+                path.Draw_Solution1(ball, intercept, pocket);
+                return (ball - intercept).normalized;
+
+          //  }
+
+
+        }
+
         public Vector3 Around_Obstruction_Ball(Vector3 ball, Vector3 impactpoint, Vector3 incident_trajectory)
         {
             Shot_Tools path = new Shot_Tools();
@@ -215,7 +260,7 @@ namespace TargetPath
 
 
         }
-
+    
         public Vector3 StraightShot(Vector3 ball, Vector3 destination)
         {
             Shot_Tools path = new Shot_Tools();
@@ -309,6 +354,84 @@ namespace TargetPath
                 {
                     return RecursivePocket(wall1_intercept, right, pocket, ball);
                 }
+            }
+
+
+
+
+        }
+
+        private Vector3 RecursivePocket_Middle(Vector3 left, Vector3 right, Vector3 pocket, Vector3 ball)
+        {
+            RaycastHit collision1;
+            RaycastHit collision2;
+            Vector3 error;
+            Vector3 error2;
+            Vector3 wall1_reflect_shot;
+            Vector3 wall2_reflect_shot;
+            Shot_Tools path = new Shot_Tools();
+
+            Vector3 wall1_intercept = new Vector3((left.x + right.x) * 0.5f, this.wall1.transform.position.y, this.wall1.transform.position.z);
+            Vector3 incident_shot = (wall1_intercept - ball).normalized;
+
+            //The incident angle may change depending on whether the wall is top or bottom
+            if (this.wall1.CompareTag("Wall_Top"))
+            {
+                wall1_reflect_shot = Vector3.Reflect(incident_shot, Vector3.back * 1f);
+            }
+            else
+            {
+                wall1_reflect_shot = Vector3.Reflect(incident_shot, Vector3.forward * 1f);
+            }
+
+            Vector3 wall2_intercept = new Vector3(this.wall2.transform.position.x, this.wall2.transform.position.y, (left.z + right.z) * 0.5f);
+            incident_shot = (wall2_intercept - ball).normalized;
+
+            if (this.wall2.CompareTag("Wall_Right"))
+            {
+                wall2_reflect_shot = Vector3.Reflect(incident_shot, Vector3.right * 1f);
+            }
+            else
+            {
+                wall2_reflect_shot = Vector3.Reflect(incident_shot, Vector3.left * 1f);
+            }
+
+
+            Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1);
+            if (collision1.collider == null)
+            {
+                Debug.Log("Something weird happened: wall1");
+                return wall1_intercept;
+            }
+
+            Physics.Raycast(wall2_intercept, wall2_reflect_shot, out collision2);
+            if (collision2.collider == null)
+            {
+                Debug.Log("Something weird happened: wall2");
+                //return wall2_intercept;
+            }
+
+            pocketcount++;
+            if (collision1.collider.CompareTag("Pocket") || pocketcount == 30)
+            {
+                return wall1_intercept;
+            }
+
+            error = collision1.point - pocket;
+            //path.Draw_line(wall1_intercept, collision1.point);
+
+            error2 = collision2.point - pocket;
+            //path.Draw_line(wall2_intercept, collision2.point);
+
+            path.Draw_Solution1(ball, wall1_intercept, collision1.point);
+
+            if (error.x < 0)
+            {
+                return RecursivePocket_Middle(left, wall1_intercept, pocket, ball);
+            }
+            else
+            {
+                return RecursivePocket_Middle(wall1_intercept, right, pocket, ball);
             }
 
 

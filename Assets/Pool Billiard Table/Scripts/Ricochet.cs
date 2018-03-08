@@ -70,6 +70,15 @@ namespace TargetPath
 
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out pocket_select))
                 {
+                    //Debug.Log(pocket_select.transform.gameObject.tag);
+                    /*
+                    foreach (Transform child in pocket_select.transform)
+                    {
+                        if (child.gameObject.CompareTag("Middle_Pocket") || child.gameObject.CompareTag("Corner_Pocket"))
+                        assignedchild = child.gameObject;
+                    }
+                    */
+
                     if (!pocket_select.transform.gameObject.CompareTag("Pocket"))
                     {
                         print("Improper Pocket seleciton. Try again");
@@ -83,8 +92,10 @@ namespace TargetPath
                     }
                 }
             }
+
             this.bounce_pocket = pocket_select.transform.gameObject;
             yield return (pocket_select.transform.gameObject.transform.position);
+
         }
         
         IEnumerator BallSelect()
