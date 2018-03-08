@@ -214,7 +214,7 @@ namespace TargetPath
             */
            // else
             //{
-                path.Draw_Solution1(ball, intercept, pocket);
+                //path.Draw_Solution1(ball, intercept, pocket);
                 return (ball - intercept).normalized;
 
           //  }
@@ -371,7 +371,7 @@ namespace TargetPath
             Vector3 wall2_reflect_shot;
             Shot_Tools path = new Shot_Tools();
 
-            Vector3 wall1_intercept = new Vector3((left.x + right.x) * 0.5f, this.wall1.transform.position.y, this.wall1.transform.position.z);
+            Vector3 wall1_intercept = new Vector3((left.x + right.x) * 0.5f, 0, this.wall1.transform.position.z);
             Vector3 incident_shot = (wall1_intercept - ball).normalized;
 
             //The incident angle may change depending on whether the wall is top or bottom
@@ -397,19 +397,33 @@ namespace TargetPath
             }
 
 
+            /*
             Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1);
             if (collision1.collider == null)
             {
                 Debug.Log("Something weird happened: wall1");
+                Physics.Raycast(wall1_intercept, wall1_reflect_shot, 100);
+
+                
+            }
+            */
+
+            if(!Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1))
+            {
+                Debug.Log("Something weird happened: wall1 in middle function");
                 return wall1_intercept;
             }
+                
+
 
             Physics.Raycast(wall2_intercept, wall2_reflect_shot, out collision2);
             if (collision2.collider == null)
             {
-                Debug.Log("Something weird happened: wall2");
+                // Debug.Log("Something weird happened: wall2");
                 //return wall2_intercept;
             }
+
+            path.Draw_Solution1(ball, wall1_intercept, collision1.point);
 
             pocketcount++;
             if (collision1.collider.CompareTag("Pocket") || pocketcount == 30)
@@ -421,18 +435,30 @@ namespace TargetPath
             //path.Draw_line(wall1_intercept, collision1.point);
 
             error2 = collision2.point - pocket;
-            //path.Draw_line(wall2_intercept, collision2.point);
 
-            path.Draw_Solution1(ball, wall1_intercept, collision1.point);
-
-            if (error.x < 0)
+            if (this.quadrant == 1 || this.quadrant == 0)
             {
-                return RecursivePocket_Middle(left, wall1_intercept, pocket, ball);
+                if (error.x < 0)
+                {
+                    return RecursivePocket_Middle(left, wall1_intercept, pocket, ball);
+                }
+                else
+                {
+                    return RecursivePocket_Middle(wall1_intercept, right, pocket, ball);
+                }
             }
             else
             {
-                return RecursivePocket_Middle(wall1_intercept, right, pocket, ball);
+                if (error.x >= 0)
+                {
+                    return RecursivePocket_Middle(left, wall1_intercept, pocket, ball);
+                }
+                else
+                {
+                    return RecursivePocket_Middle(wall1_intercept, right, pocket, ball);
+                }
             }
+            
 
 
 
