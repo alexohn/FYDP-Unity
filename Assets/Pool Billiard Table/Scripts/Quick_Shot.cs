@@ -49,10 +49,6 @@ namespace TargetPath {
 
         public bool Measure_Collision_to_Impact(Vector3 cue, Vector3 impact, Vector3 ball, Vector2 requiredtrajectory)
         {
-            RaycastHit collision;
-            Ray castdirection;
-            Shot_Tools path = new Shot_Tools();
-
             //castdirection = new Ray(ball, (destination - ball).normalized);
             //bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
             bool check = Physics.Linecast(cue, impact);
@@ -61,8 +57,6 @@ namespace TargetPath {
             //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
             float angle = Vector3.Angle((cue - ball).normalized, (impact-ball).normalized);
 
-            Debug.Log(check);
-            Debug.Log(angle);
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
             if (!check && angle <= 45f)
             //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
