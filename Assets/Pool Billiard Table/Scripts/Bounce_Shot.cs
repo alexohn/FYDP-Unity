@@ -137,6 +137,37 @@ namespace TargetPath
             }
         }
 
+        public void SelectQuadrant(Vector3 start, Vector3 end)
+        {
+            if (end.z > start.z)
+            {
+                //If ball is in front of the pocket
+                if (end.x < start.x)
+                {
+                    this.quadrant = 2;
+                }
+                //If ball is behind the pocket
+                else
+                {
+                    this.quadrant = 1;
+                }
+            }
+            //If pocket is below the ball
+            else
+            {
+                //If ball is in front of the pocket
+                if (end.x > start.x)
+                {
+                    this.quadrant = 0;
+                }
+                //If ball is behind the pocket
+                else
+                {
+                    this.quadrant = 3;
+                }
+            }
+        }
+
         public Vector3 Error_Correction(RaycastHit collision, Vector3 destination, Vector3 intercept, GameObject wall)
         {
             Vector3 error;
@@ -234,6 +265,8 @@ namespace TargetPath
             Physics.Raycast(impactpoint, incident_trajectory, out wall);
 
             Vector3 solutionintercept = RecursiveIntercept(impactpoint, ball, impactpoint, ball);
+            SelectQuadrant(ball, impactpoint);
+            Vector3 solutionintercept2 = RecursiveIntercept_SideWall(impactpoint, ball, impactpoint, ball);
 
             bool check = path.Measure_Collision(ball, solutionintercept);
 
@@ -251,6 +284,7 @@ namespace TargetPath
             */
             {
                 path.Draw_Solution1(ball, solutionintercept, impactpoint);
+                path.Draw_Solution2(ball, solutionintercept2, impactpoint);
                 return solutionintercept;
             }
                 
@@ -460,6 +494,7 @@ namespace TargetPath
             Shot_Tools path = new Shot_Tools();
 
             Vector3 intercept = new Vector3((left.x + right.x) * 0.5f, this.wall1.transform.position.y, this.wall1.transform.position.z);
+
             if (this.quadrant == 1 || this.quadrant == 2)
             {
                 intersect_plane = new Plane(Vector3.left, impactpoint);
@@ -485,11 +520,8 @@ namespace TargetPath
             if (intersect_plane.Raycast(reflect_projection, out enter))
             {
                 count++;
-                //Debug.Log(count);
                 Vector3 hitpoint = reflect_projection.GetPoint(enter);
-                //path.Draw_Solution1(ball, intercept, hitpoint);
                 if (Vector3.Distance(hitpoint, impactpoint) < 0.5f)
-                    //Debug.Log(count);
                     return intercept;
                 if (count == 30)
                 {
@@ -539,7 +571,121 @@ namespace TargetPath
             }
             
         }
-        
+
+        private Vector3 RecursiveIntercept_SideWall(Vector3 up, Vector3 down, Vector3 impactpoint, Vector3 ball)
+        {
+            Plane intersect_plane;
+
+            Ray reflect_projection;
+            float enter;
+            Vector3 reflect_shot;
+            Shot_Tools path = new Shot_Tools();
+
+            Vector3 intercept = new Vector3(this.wall2.transform.position.x, 0, (up.z + down.z) * 0.5f);
+
+            if (this.quadrant == 1 || this.quadrant == 2)
+            {
+                intersect_plane = new Plane(Vector3.back, impactpoint);
+            }
+            else
+            {
+                intersect_plane = new Plane(Vector3.forward, impactpoint);
+            }
+
+            Vector3 incident_shot = (intercept - ball).normalized;
+
+            //The incident angle may change depending on whether the wall is top or bottom
+            if (this.wall2.CompareTag("Wall_Right"))
+            {
+                reflect_shot = Vector3.Reflect(incident_shot, Vector3.left * 1f);
+            }
+            else
+            {
+                reflect_shot = Vector3.Reflect(incident_shot, Vector3.right * 1f);
+            }
+
+            reflect_projection = new Ray(intercept, reflect_shot);
+            if (intersect_plane.Raycast(reflect_projection, out enter))
+            {
+                count++;
+                Vector3 hitpoint = reflect_projection.GetPoint(enter);
+                path.Draw_Solution1(ball, intercept, hitpoint);
+
+                if (Vector3.Distance(hitpoint, impactpoint) < 0.5f)
+                    return intercept;
+                if (count == 30)
+                {
+                    Debug.Log("Couldn't find a solution");
+                    return intercept;
+                }
+                if (this.quadrant == 0 || this.quadrant == 3)
+                {
+                    if (this.wall2.CompareTag("Wall_Right"))
+                    {
+                        if (hitpoint.x > impactpoint.x)
+                        {
+                            return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
+                        }
+                            
+                        else
+                        {
+                            return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
+
+                        }
+                    }
+                    else
+                    {
+                        if (hitpoint.x > impactpoint.x)
+                        {
+                            return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
+                        }
+
+                        else
+                        {
+                            return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (this.wall2.CompareTag("Wall_Right"))
+                    {
+                        if (hitpoint.x > impactpoint.x)
+                        {
+                            return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
+                        }
+                        else
+                        {
+                            return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
+
+                        }
+                    }
+                    else
+                    {
+                        if (hitpoint.x > impactpoint.x)
+                        {
+                            return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
+                        }
+                            
+                        else
+                        {
+                            return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
+                        }
+                            
+                    }
+                }
+
+            }
+            else
+            {
+                Debug.Log("Missed the target");
+                return intercept;
+            }
+
+        }
+
     }
 
 }

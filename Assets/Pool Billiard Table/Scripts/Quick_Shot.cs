@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 namespace TargetPath {
     public class Pocket
     {
@@ -91,11 +92,34 @@ namespace TargetPath {
             shot2.SetPositions(coord2);
         }
 
+        public void Draw_Solution2(Vector3 cue, Vector3 ball, Vector3 pocket)
+        {
+            GameObject line1 = new GameObject("line");
+            line1.tag = "Solution";
+            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
+            shot1.SetWidth(0.3f, 0.3f);
+            shot1.material = new Material(Shader.Find("Particles/Additive"));
+            shot1.SetColors(Color.green, Color.green);
+
+            GameObject line2 = new GameObject("line");
+            line2.tag = "Solution";
+            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
+            shot2.material = new Material(Shader.Find("Particles/Additive"));
+            shot2.SetWidth(0.3f, 0.3f);
+            shot2.SetColors(Color.green, Color.green);
+
+            Vector3[] coord1 = new Vector3[2] { cue, ball };
+            Vector3[] coord2 = new Vector3[2] { ball, pocket };
+            shot1.SetPositions(coord1);
+            shot2.SetPositions(coord2);
+        }
+
         public void Draw_line(Vector3 ball, Vector3 destination)
         {
             GameObject line1 = new GameObject("line");
             line1.tag = "Solution";
             LineRenderer shot1 = line1.AddComponent<LineRenderer>();
+            shot1.material = new Material(Shader.Find("Particles/Additive"));
             shot1.SetWidth(0.3f, 0.3f);
             shot1.SetColors(Color.cyan, Color.cyan);
 
