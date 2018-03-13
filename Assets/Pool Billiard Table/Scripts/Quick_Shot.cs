@@ -18,7 +18,7 @@ namespace TargetPath {
     }
 
     public class Target
-    {
+    {   
         public float distance;
         public Vector3 impactpoint;
         public bool valid_path;
@@ -176,7 +176,7 @@ namespace TargetPath {
         //LineRenderer linerenderer;
 
         // Use this for initialization
-        void Start()
+        public void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
             balls = GameObject.FindGameObjectsWithTag("Solid");
