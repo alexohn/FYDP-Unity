@@ -19,11 +19,11 @@ namespace TargetPath
         public Canvas popup;
 
 
-        // Use this for initialization
+        // Use this for initialization, hides game object
         void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
-            popup = popup.GetComponent<Canvas> ();
+            popup = popup.GetComponent<Canvas>();
             popup.enabled = false;
 
         }
@@ -52,7 +52,7 @@ namespace TargetPath
 
             while (run != 0)
             {
-                
+
                 Mouse_Select ball = new Mouse_Select(this, BallSelect());
                 yield return ball.coroutine;
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
@@ -64,7 +64,7 @@ namespace TargetPath
 
 
             }
-            
+
         }
 
         IEnumerator PocketSelect()
@@ -110,20 +110,20 @@ namespace TargetPath
             yield return (pocket_select.transform.gameObject.transform.position);
 
         }
-        
+
         IEnumerator BallSelect()
         {
             RaycastHit ball_select = new RaycastHit();
             //popup.enabled = true;
             Transform child = popup.transform.Find("Text");
             Text t = child.GetComponent<Text>();
-            
+
             while (true)
             {
                 //print("Select a ball");
                 t.text = "Select a ball";
                 yield return new WaitUntil(() => Input.GetMouseButtonDown(0) == true);
-                
+
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
                 {
                     if (!ball_select.transform.gameObject.CompareTag("Solid"))
