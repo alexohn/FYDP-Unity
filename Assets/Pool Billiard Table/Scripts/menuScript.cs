@@ -8,7 +8,8 @@ public class menuScript : MonoBehaviour {
 
 	public Canvas loginMenu;
 	public Canvas userMenu;
-	//public Button login; //login button
+	public Canvas gameScreen;
+	public Button login; //login button
 	public Button startText; //play as guest
 	public Button scores; //database interaction
 	public string UserNameInput;
@@ -97,7 +98,7 @@ public class menuScript : MonoBehaviour {
 			print ("Already Exists");
 		}
 	}
-
+s
 	// Update is called once per frame
 	void Update () {
 		
