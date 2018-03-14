@@ -98,7 +98,7 @@ public class menuScript : MonoBehaviour {
 			print ("Already Exists");
 		}
 	}
-s
+
 	// Update is called once per frame
 	void Update () {
 		
