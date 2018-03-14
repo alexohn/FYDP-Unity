@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 
@@ -15,13 +16,15 @@ namespace TargetPath
         double best_weight = 100;
         bool algo_start = false;
         bool cue_select = false;
+        public Canvas popup;
 
 
-        // Use this for initialization
+        // Use this for initialization, hides game object
         void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
-
+            popup = popup.GetComponent<Canvas>();
+            popup.enabled = false;
 
         }
 
@@ -34,6 +37,7 @@ namespace TargetPath
         public void Ricochet_Shot()
         {
             Start();
+            Clear();
             StartCoroutine(Select_Shot());
         }
 
@@ -41,62 +45,55 @@ namespace TargetPath
         {
             Shot_Tools path = new Shot_Tools();
             bool flag = true;
-            
-            while(flag)
+            int run = 1;
+            popup.enabled = true;
+            Transform child = popup.transform.Find("Text");
+            Text t = child.GetComponent<Text>();
+
+            while (run != 0)
             {
+
                 Mouse_Select ball = new Mouse_Select(this, BallSelect());
                 yield return ball.coroutine;
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
                 yield return pocket.coroutine;
 
-                System.DateTime start = System.DateTime.Now;
-                if (path.Measure_Collision(cue.transform.position, (Vector3)ball.result) || path.Measure_Collision((Vector3)ball.result, (Vector3)pocket.result))
-                {
-                    if (path.Calculate_Angle_toPocket((Vector3)pocket.result, (Vector3)ball.result, cue.transform.position))
-                    {
-                        path.Draw_Solution1(cue.transform.position, (Vector3)ball.result, (Vector3)pocket.result);
-                        flag = false;
-                        //Debug.Log((Vector3)pocket.result);
-                        //Debug.Log((Vector3)ball.result);
-                        System.DateTime end = System.DateTime.Now;
-                        System.TimeSpan duration = end - start;
-                        Debug.Log(duration);
-                        //Debug.Log("Take the shot!");
+                t.text = "Calculating Shot....";
+                Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
+                run = bounce.DetermineCase();
 
-                    }
-                    else{
-                        Debug.Log("Attempting a bounce shot");
-                        start = System.DateTime.Now;
-                        Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
-                        bounce.DetermineCase();
-                        System.DateTime end = System.DateTime.Now;
-                        System.TimeSpan duration = end - start;
-                        Debug.Log(duration);
-                        flag = false;
-                        /*
-                        Vector3 incident = bounce.Around_Obstruction_Pocket(bounce_ball.transform.position, bounce_pocket.transform.position);
-                        bounce.Obstruction_to_Ball(incident);
-                        */
-                        //Debug.Log("This shot is not possible. Please select another ball and pocket");
-                    }
-                }
+
             }
-            
+
         }
 
         IEnumerator PocketSelect()
         {
             RaycastHit pocket_select = new RaycastHit();
+            //popup.enabled = true;
+            Transform child = popup.transform.Find("Text");
+            Text t = child.GetComponent<Text>();
             while (true)
             {
-                print("Select a pocket");
+                //print("Select a pocket");
+                t.text = "Select a pocket";
                 yield return new WaitUntil(() => Input.GetMouseButton(0) == true);
 
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out pocket_select))
                 {
+                    //Debug.Log(pocket_select.transform.gameObject.tag);
+                    /*
+                    foreach (Transform child in pocket_select.transform)
+                    {
+                        if (child.gameObject.CompareTag("Middle_Pocket") || child.gameObject.CompareTag("Corner_Pocket"))
+                        assignedchild = child.gameObject;
+                    }
+                    */
+
                     if (!pocket_select.transform.gameObject.CompareTag("Pocket"))
                     {
-                        print("Improper Pocket seleciton. Try again");
+                        //print("Improper Pocket seleciton. Try again");
+                        t.text = "Improper Pocket seleciton. Try again";
                         yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
                         continue;
                     }
@@ -107,23 +104,32 @@ namespace TargetPath
                     }
                 }
             }
+
             this.bounce_pocket = pocket_select.transform.gameObject;
+            //popup.enabled = false;
             yield return (pocket_select.transform.gameObject.transform.position);
+
         }
-        
+
         IEnumerator BallSelect()
         {
             RaycastHit ball_select = new RaycastHit();
+            //popup.enabled = true;
+            Transform child = popup.transform.Find("Text");
+            Text t = child.GetComponent<Text>();
+
             while (true)
             {
-                print("Select a ball");
+                //print("Select a ball");
+                t.text = "Select a ball";
                 yield return new WaitUntil(() => Input.GetMouseButtonDown(0) == true);
-                
+
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ball_select))
                 {
-                    if (!ball_select.transform.gameObject.CompareTag("Solid") && !ball_select.transform.gameObject.CompareTag("Stripe"))
+                    if (!ball_select.transform.gameObject.CompareTag("Solid"))
                     {
-                        print("Improper Ball Selection. Try again");
+                        //print("Improper Ball Selection. Try again");
+                        t.text = "Improper Ball seleciton. Try again";
                         yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);
                         continue;
                     }
@@ -135,7 +141,18 @@ namespace TargetPath
                 }
             }
             this.bounce_ball = ball_select.transform.gameObject;
+            //popup.enabled = false;
             yield return (ball_select.transform.gameObject.transform.position);
+        }
+
+        public void Clear()
+        {
+            GameObject[] Lines = GameObject.FindGameObjectsWithTag("Solution");
+
+            foreach (GameObject line in Lines)
+            {
+                GameObject.Destroy(line);
+            }
         }
     }
 
