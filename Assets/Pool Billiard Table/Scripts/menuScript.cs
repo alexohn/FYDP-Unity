@@ -67,13 +67,31 @@ public class menuScript : MonoBehaviour
 
     public void CreatePress()
     {
-        StartCoroutine(CheckAndCreateUser(UserNameInput, CreateUserFail, CreateUserSuccess));
+		if (UserNameInput != "") {
+			StartCoroutine (CheckAndCreateUser (UserNameInput, CreateUserFail, CreateUserSuccess));
+		} 
+		else {
+			CreateUserFail.enabled = true;
+		}
+        
     }
 
     public void EnterPress()
     {
-        StartCoroutine(CheckUser(UserNameInput2, EnterUserFail, EnterUserSuccess));
+		if (UserNameInput2 != "") {
+			StartCoroutine (CheckUser (UserNameInput2, EnterUserFail, EnterUserSuccess));
+		} 
+		else {
+			EnterUserFail.enabled = true;
+		}
+
     }
+
+	public void LoginSuccess() 
+	{
+		EnterUserSuccess.enabled = false;
+		SceneManager.LoadScene("Pool table");
+	}
 
     public void NoPress()
     {
@@ -82,7 +100,6 @@ public class menuScript : MonoBehaviour
         CreateUserFail.enabled = false;
         CreateUserSuccess.enabled = false;
         EnterUserFail.enabled = false;
-        EnterUserSuccess.enabled = false;
         startText.enabled = true;
         scores.enabled = true;
 
