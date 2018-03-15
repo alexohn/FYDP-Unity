@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 namespace TargetPath {
     public class Pocket
     {
@@ -18,7 +17,7 @@ namespace TargetPath {
     }
 
     public class Target
-    {
+    {   
         public float distance;
         public Vector3 impactpoint;
         public bool valid_path;
@@ -48,26 +47,20 @@ namespace TargetPath {
             }
         }
 
-        public bool Measure_Collision_to_Impact(Vector3 cue, Vector3 impact, Vector3 ball, Vector2 requiredtrajectory)
+        public bool Measure_Collision_to_Impact(Vector3 ball, Vector3 destination, Vector2 requiredtrajectory)
         {
-            //castdirection = new Ray(ball, (destination - ball).normalized);
-            //bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
-            bool check = Physics.Linecast(cue, impact);
+            RaycastHit collision;
+            Ray castdirection;
 
 
-            //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
-            float angle = Vector3.Angle((cue - ball).normalized, (impact-ball).normalized);
-
-            //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
-            if (!check && angle <= 45f)
-            //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
+            castdirection = new Ray(ball, (destination - ball).normalized);
+            if (!Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination)) && Vector3.Angle(requiredtrajectory, (ball-destination).normalized) > 135f)
             {
-                //If there is nothing in the way and the you can reach the impact point
+                
                 return true;
             }
             else
             {
-                //If there is something in the way or you cannot reach the target point
                 return false;
             }
 
@@ -92,34 +85,11 @@ namespace TargetPath {
             shot2.SetPositions(coord2);
         }
 
-        public void Draw_Solution2(Vector3 cue, Vector3 ball, Vector3 pocket)
-        {
-            GameObject line1 = new GameObject("line");
-            line1.tag = "Solution";
-            LineRenderer shot1 = line1.AddComponent<LineRenderer>();
-            shot1.SetWidth(0.3f, 0.3f);
-            shot1.material = new Material(Shader.Find("Particles/Additive"));
-            shot1.SetColors(Color.green, Color.green);
-
-            GameObject line2 = new GameObject("line");
-            line2.tag = "Solution";
-            LineRenderer shot2 = line2.AddComponent<LineRenderer>();
-            shot2.material = new Material(Shader.Find("Particles/Additive"));
-            shot2.SetWidth(0.3f, 0.3f);
-            shot2.SetColors(Color.green, Color.green);
-
-            Vector3[] coord1 = new Vector3[2] { cue, ball };
-            Vector3[] coord2 = new Vector3[2] { ball, pocket };
-            shot1.SetPositions(coord1);
-            shot2.SetPositions(coord2);
-        }
-
         public void Draw_line(Vector3 ball, Vector3 destination)
         {
             GameObject line1 = new GameObject("line");
             line1.tag = "Solution";
             LineRenderer shot1 = line1.AddComponent<LineRenderer>();
-            shot1.material = new Material(Shader.Find("Particles/Additive"));
             shot1.SetWidth(0.3f, 0.3f);
             shot1.SetColors(Color.cyan, Color.cyan);
 
@@ -156,6 +126,8 @@ namespace TargetPath {
 
         public Vector3 Impactpoint (Vector3 ball, Vector3 trajectory)
         {
+            //return Vector3.MoveTowards(ball, trajectory, -0.0575f * 5);
+            //return Vector3.MoveTowards(ball, trajectory, -1.5f);
             return ball + (trajectory * 1.5f);
         }
 
@@ -176,7 +148,7 @@ namespace TargetPath {
         //LineRenderer linerenderer;
 
         // Use this for initialization
-        void Start()
+        public void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
             balls = GameObject.FindGameObjectsWithTag("Solid");
