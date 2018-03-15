@@ -73,6 +73,30 @@ namespace TargetPath {
 
         }
 
+        public bool Measure_Solution(Vector3 ball, Vector3 intercept, Vector3 destination)
+        {
+            RaycastHit collision1;
+            RaycastHit collision2;
+
+            Physics.Linecast(ball, intercept, out collision1);
+            if (collision1.collider == null)
+            {
+                Physics.Linecast(ball, intercept, out collision2);
+                if (collision2.transform.position == destination)
+                    return true;
+                else
+                {
+                    Debug.Log("There is an object in the way to pocket");
+                    return false;
+                }
+                   
+            }
+            else
+            {
+                Debug.Log("There is an object in the way to intercept");
+                return false;
+            }
+        }
 
         public void Draw_Solution1(Vector3 cue, Vector3 ball, Vector3 pocket)
         {

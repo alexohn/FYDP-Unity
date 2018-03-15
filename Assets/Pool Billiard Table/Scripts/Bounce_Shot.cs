@@ -268,26 +268,26 @@ namespace TargetPath
             SelectQuadrant(ball, impactpoint);
             Vector3 solutionintercept2 = RecursiveIntercept_SideWall(impactpoint, ball, impactpoint, ball);
 
-            bool check = path.Measure_Collision(ball, solutionintercept);
+           // bool check = path.Measure_Collision(ball, solutionintercept);
+            //bool check2 = path.Measure_Collision(solutionintercept, impactpoint);
 
 
             //There is a null exception being thrown here. Don't really know why
             //bool check2 = path.Measure_Collision(solutionintercept, impactpoint);
 
-            /*
-            if (!path.Measure_Collision(ball, solutionintercept) || !path.Measure_Collision(solutionintercept, impactpoint))
+            if (!path.Measure_Solution(ball, solutionintercept, impactpoint))
             {
                 Debug.Log("The shot is not possible. Select either a different pocket or ball");
-                return new Vector3();
+               // Debug.Log(check);
+               // Debug.Log(check2);
             }
             else
-            */
             {
-                path.Draw_Solution1(ball, solutionintercept, impactpoint);
-                path.Draw_Solution2(ball, solutionintercept2, impactpoint);
-                return solutionintercept;
+                Debug.Log("Nothing is in the way");
             }
-                
+            path.Draw_Solution1(ball, solutionintercept, impactpoint);
+            path.Draw_Solution2(ball, solutionintercept2, impactpoint);
+            return solutionintercept;
 
 
         }
@@ -442,7 +442,7 @@ namespace TargetPath
                 //return wall2_intercept;
             }
 
-            path.Draw_Solution1(ball, wall1_intercept, collision1.point);
+            //path.Draw_Solution1(ball, wall1_intercept, collision1.point);
 
             pocketcount++;
             if (collision1.collider.CompareTag("Pocket") || pocketcount == 30)
@@ -609,7 +609,7 @@ namespace TargetPath
             {
                 count++;
                 Vector3 hitpoint = reflect_projection.GetPoint(enter);
-                path.Draw_Solution1(ball, intercept, hitpoint);
+                //path.Draw_Solution1(ball, intercept, hitpoint);
 
                 if (Vector3.Distance(hitpoint, impactpoint) < 0.5f)
                     return intercept;
