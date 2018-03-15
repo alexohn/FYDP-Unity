@@ -32,34 +32,19 @@ public class Process_Color : MonoBehaviour {
     {
         //This section is for using a jpg file for object creation
         Process process = new Process();
-        process.StartInfo.FileName = "Image_Process.exe";
+        process.StartInfo.FileName = "Colour_Process_jpg.exe";
         process.StartInfo.CreateNoWindow = true;
-        //process.StartInfo.Arguments = "state.jpg";
+        process.StartInfo.Arguments = "state.jpg";
         process.Start();
         process.WaitForExit();
         Clear();
         string[] circles = File.ReadAllLines("colour_coordinates.txt");
-        /*
-        char[] split = new char[1];
+        char[] split = new char[2];
         split[0] = '-';
         split[1] = ',';
-        */
-        char split = ',';
         foreach (string circle in circles)
         {
             coord = circle.Split(split);
-            if (coord[0] == "white")
-                ball = cue;
-            if (coord[0] == "black")
-                ball = black;
-            if (coord[0] == "yellow")
-                ball = orange;
-            if (coord[0] == "purple")
-                ball = purple;
-            //if (coord[0] == "blue")
-                //ball = blue;
-
-            /*
             switch (Convert.ToInt32(coord[0]))
             {
                 case 1:
@@ -75,8 +60,7 @@ public class Process_Color : MonoBehaviour {
                     ball = orange;
                     break;
             }
-            */
-            Vector3 ball_transform = new Vector3(Convert.ToSingle(coord[1]), 0, -1 * Convert.ToSingle(coord[2]));
+            Vector3 ball_transform = new Vector3(Convert.ToSingle(coord[2]), 0, -1 * Convert.ToSingle(coord[3]));
             Quaternion ball_rotation = new Quaternion(0, 0, 0, 0);
             Instantiate(ball, ball_transform, ball_rotation);
         }
