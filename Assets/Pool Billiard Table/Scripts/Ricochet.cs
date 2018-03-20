@@ -87,7 +87,7 @@ namespace TargetPath
 
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out pocket_select))
                 {
-                    //Debug.Log(pocket_select.transform.gameObject.tag);
+                    Debug.Log(pocket_select.transform.gameObject.tag);
                     /*
                     foreach (Transform child in pocket_select.transform)
                     {
