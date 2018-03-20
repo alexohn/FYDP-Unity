@@ -5,8 +5,8 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
-    path: Assets/scenes/Starting_Screen.unity
+  - enabled: 0
+    path: 
     guid: bf3beff8559144b73a1165b84b461ec9
   - enabled: 1
     path: Assets/Pool table.unity

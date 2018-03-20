@@ -32,12 +32,12 @@ public class Process_Color : MonoBehaviour {
     {
         //This section is for using a jpg file for object creation
         Process process = new Process();
+        Clear();
         process.StartInfo.FileName = "Colour_Process_jpg.exe";
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.Arguments = "state.jpg";
         process.Start();
         process.WaitForExit();
-        Clear();
         string[] circles = File.ReadAllLines("colour_coordinates.txt");
         char[] split = new char[2];
         split[0] = '-';
