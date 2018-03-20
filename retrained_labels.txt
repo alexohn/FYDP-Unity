@@ -1,6 +1,0 @@
-blackball
-blueball
-cueball
-greenball
-redball
-yellowball
