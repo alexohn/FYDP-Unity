@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace TargetPath {
+namespace TargetPath
+{
     public class Pocket
     {
         public float distance;
@@ -18,7 +19,7 @@ namespace TargetPath {
     }
 
     public class Target
-    {   
+    {
         public float distance;
         public Vector3 impactpoint;
         public bool valid_path;
@@ -35,7 +36,7 @@ namespace TargetPath {
     {
         public bool Measure_Collision(Vector3 ball, Vector3 destination)
         {
-            RaycastHit collision; 
+            RaycastHit collision;
 
             Physics.Linecast(ball, destination, out collision);
             if (collision.transform.position == destination)
@@ -56,7 +57,7 @@ namespace TargetPath {
 
 
             //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
-            float angle = Vector3.Angle((cue - ball).normalized, (impact-ball).normalized);
+            float angle = Vector3.Angle((cue - ball).normalized, (impact - ball).normalized);
 
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
             if (!check && angle <= 45f)
@@ -154,7 +155,7 @@ namespace TargetPath {
             return false;
         }
 
-        public Vector3 Impactpoint (Vector3 ball, Vector3 trajectory)
+        public Vector3 Impactpoint(Vector3 ball, Vector3 trajectory)
         {
             return ball + (trajectory * 1.5f);
         }
@@ -162,7 +163,8 @@ namespace TargetPath {
     }
 }
 
-namespace TargetPath {
+namespace TargetPath
+{
     public class Quick_Shot : MonoBehaviour
     {
 
@@ -176,7 +178,7 @@ namespace TargetPath {
         //LineRenderer linerenderer;
 
         // Use this for initialization
-        public void Start()
+        void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
             balls = GameObject.FindGameObjectsWithTag("Solid");
@@ -279,10 +281,10 @@ namespace TargetPath {
             }
         }
 
-		public void ScreenShot()
-		{
-			Application.CaptureScreenshot("Screenshot.png");
-		}
+        public void ScreenShot()
+        {
+            Application.CaptureScreenshot("Screenshot.png");
+        }
     }
 }
 

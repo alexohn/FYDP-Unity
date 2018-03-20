@@ -38,7 +38,7 @@ namespace TargetPath
             int pocket_type = 0;
             count = 0;
             pocketcount = 0;
-            
+
 
             foreach (Transform child in pocket.transform)
             {
@@ -61,7 +61,7 @@ namespace TargetPath
             {
                 incidenttrajectory = StraightShot(this.ball.transform.position, pocket.transform.position);
             }
-       
+
             if (incidenttrajectory == Vector3.zero)
             {
                 Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
@@ -76,7 +76,7 @@ namespace TargetPath
             {
                 SelectWall(impactpoint, this.ball.transform.position);
                 //There might be an issue here, because this is changing the quadrant of the shot
-                check = Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory); 
+                check = Around_Obstruction_Ball(this.cue.transform.position, impactpoint, incidenttrajectory);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace TargetPath
             }
 
             return 0;
-            
+
         }
         //Determine where to bounce the ball, based on the location of all the balls
 
@@ -176,13 +176,13 @@ namespace TargetPath
                 return intercept;
             }
             error = collision.point - destination;
-            if(Mathf.Abs(error.x) < 1f)
+            if (Mathf.Abs(error.x) < 1f)
             {
                 return intercept;
             }
             if (wall.CompareTag("Wall_Top") || wall.CompareTag("Wall_Bottom"))
             {
-                intercept.Set(intercept.x - (error.x/-error.x), intercept.y, intercept.z);
+                intercept.Set(intercept.x - (error.x / -error.x), intercept.y, intercept.z);
             }
             else
             {
@@ -203,7 +203,7 @@ namespace TargetPath
             //Find first solution using wall1
             Vector3 midpoint = (pocket - ball) * 0.5f + ball;
             //Determine which wall to react the impact point
-            
+
             Vector3 intercept = RecursivePocket(pocket, ball, pocket, ball);
 
 
@@ -240,12 +240,12 @@ namespace TargetPath
                 return new Vector3();
             }
             */
-           // else
+            // else
             //{
-                //path.Draw_Solution1(ball, intercept, pocket);
-                return (ball - intercept).normalized;
+            //path.Draw_Solution1(ball, intercept, pocket);
+            return (ball - intercept).normalized;
 
-          //  }
+            //  }
 
 
         }
@@ -287,11 +287,11 @@ namespace TargetPath
                 path.Draw_Solution2(ball, solutionintercept2, impactpoint);
                 return solutionintercept;
             }
-                
+
 
 
         }
-    
+
         public Vector3 StraightShot(Vector3 ball, Vector3 destination)
         {
             Shot_Tools path = new Shot_Tools();
@@ -299,7 +299,7 @@ namespace TargetPath
             return (ball - destination).normalized;
         }
 
-        private Vector3 RecursivePocket (Vector3 left, Vector3 right, Vector3 pocket, Vector3 ball)
+        private Vector3 RecursivePocket(Vector3 left, Vector3 right, Vector3 pocket, Vector3 ball)
         {
             RaycastHit collision1;
             RaycastHit collision2;
@@ -311,7 +311,7 @@ namespace TargetPath
 
             Vector3 wall1_intercept = new Vector3((left.x + right.x) * 0.5f, this.wall1.transform.position.y, this.wall1.transform.position.z);
             Vector3 incident_shot = (wall1_intercept - ball).normalized;
-            
+
             //The incident angle may change depending on whether the wall is top or bottom
             if (this.wall1.CompareTag("Wall_Top"))
             {
@@ -350,7 +350,7 @@ namespace TargetPath
             }
 
             pocketcount++;
-            if (collision1.collider.CompareTag("Pocket")||pocketcount == 30)
+            if (collision1.collider.CompareTag("Pocket") || pocketcount == 30)
             {
                 return wall1_intercept;
             }
@@ -427,12 +427,12 @@ namespace TargetPath
                 wall2_reflect_shot = Vector3.Reflect(incident_shot, Vector3.left * 1f);
             }
 
-            if(!Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1))
+            if (!Physics.Raycast(wall1_intercept, wall1_reflect_shot, out collision1))
             {
                 Debug.Log("Something weird happened: wall1 in middle function");
                 return wall1_intercept;
             }
-                
+
 
 
             Physics.Raycast(wall2_intercept, wall2_reflect_shot, out collision2);
@@ -477,7 +477,7 @@ namespace TargetPath
                     return RecursivePocket_Middle(wall1_intercept, right, pocket, ball);
                 }
             }
-            
+
 
 
 
@@ -487,7 +487,7 @@ namespace TargetPath
         private Vector3 RecursiveIntercept(Vector3 left, Vector3 right, Vector3 impactpoint, Vector3 ball)
         {
             Plane intersect_plane;
-            
+
             Ray reflect_projection;
             float enter;
             Vector3 reflect_shot;
@@ -503,7 +503,7 @@ namespace TargetPath
             {
                 intersect_plane = new Plane(Vector3.left, impactpoint);
             }
-                
+
             Vector3 incident_shot = (intercept - ball).normalized;
 
             //The incident angle may change depending on whether the wall is top or bottom
@@ -529,7 +529,7 @@ namespace TargetPath
                 }
                 if (this.quadrant == 2 || this.quadrant == 3)
                 {
-                    if(this.wall1.CompareTag("Wall_Top"))
+                    if (this.wall1.CompareTag("Wall_Top"))
                     {
                         if (hitpoint.z > impactpoint.z)
                             return RecursiveIntercept(intercept, right, impactpoint, ball);
@@ -569,7 +569,7 @@ namespace TargetPath
                 Debug.Log("Missed the target");
                 return intercept;
             }
-            
+
         }
 
         private Vector3 RecursiveIntercept_SideWall(Vector3 up, Vector3 down, Vector3 impactpoint, Vector3 ball)
@@ -626,7 +626,7 @@ namespace TargetPath
                         {
                             return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
                         }
-                            
+
                         else
                         {
                             return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
@@ -668,12 +668,12 @@ namespace TargetPath
                         {
                             return RecursiveIntercept_SideWall(up, intercept, impactpoint, ball);
                         }
-                            
+
                         else
                         {
                             return RecursiveIntercept_SideWall(intercept, down, impactpoint, ball);
                         }
-                            
+
                     }
                 }
 
