@@ -1882,8 +1882,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cue: {fileID: 1622525691860568, guid: d7e0d51784d5d0a41a24043415fd1034, type: 2}
   black: {fileID: 1319369744854910, guid: 65585f20727a9426b87d2271a57c2983, type: 2}
-  purple: {fileID: 1132745893081170, guid: 826e2f93d91305f4d9fb81f4c2e10bfc, type: 2}
-  orange: {fileID: 1362539692426884, guid: f1123472df440429c91ba4ab256695ea, type: 2}
+  blue: {fileID: 0}
+  red: {fileID: 0}
+  yellow: {fileID: 0}
+  green: {fileID: 0}
 --- !u!4 &1126045396
 Transform:
   m_ObjectHideFlags: 0
@@ -2501,6 +2503,11 @@ Prefab:
     - target: {fileID: 4114678201126362, guid: 98549bb6ba5a49640b1a0c5848496f4a, type: 2}
       propertyPath: m_RootOrder
       value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 135005071487509742, guid: 98549bb6ba5a49640b1a0c5848496f4a,
+        type: 2}
+      propertyPath: m_Radius
+      value: 0.06
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 98549bb6ba5a49640b1a0c5848496f4a, type: 2}

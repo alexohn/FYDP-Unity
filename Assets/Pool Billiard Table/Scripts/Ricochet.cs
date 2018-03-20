@@ -134,6 +134,7 @@ namespace TargetPath
                 {
                     if (!ball_select.transform.gameObject.CompareTag("Solid"))
                     {
+                        Debug.Log(ball_select.transform.gameObject.tag);
                         //print("Improper Ball Selection. Try again");
                         t.text = "Improper Ball seleciton. Try again";
                         yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);

@@ -11,8 +11,10 @@ public class Process_Color : MonoBehaviour {
    // public Button start_Button;
     public GameObject cue;
     public GameObject black;
-    public GameObject purple;
-    public GameObject orange;
+    public GameObject blue;
+    public GameObject red;
+    public GameObject yellow;
+    public GameObject green;
 
     GameObject ball;
     // Use this for initialization
@@ -28,7 +30,8 @@ public class Process_Color : MonoBehaviour {
 		
 	}
 
-    public void Execute()
+    /*
+    public void Execute_Copy()
     {
         //This section is for using a jpg file for object creation
         Process process = new Process();
@@ -65,7 +68,40 @@ public class Process_Color : MonoBehaviour {
             Instantiate(ball, ball_transform, ball_rotation);
         }
     }
-    
+    */
+
+    public void Execute()
+    {
+        //This section is for using a jpg file for object creation
+        Clear();
+        Process process = new Process();
+        process.StartInfo.FileName = "Image_Process_TF.exe";
+        process.StartInfo.CreateNoWindow = true;
+        process.Start();
+        process.WaitForExit();
+        string[] circles = File.ReadAllLines("colour_coordinates.txt");
+        char split = ',';
+        foreach (string circle in circles)
+        {
+            coord = circle.Split(split);
+            if (coord[0] == "cueball")
+                ball = cue;
+            else if (coord[0] == "blueball")
+                ball = blue;
+            else if (coord[0] == "blackball")
+                ball = black;
+            else if (coord[0] == "greenball")
+                ball = green;
+            else if (coord[0] == "redball")
+                ball = red;
+            else
+                ball = yellow;
+            Vector3 ball_transform = new Vector3(Convert.ToSingle(coord[1]), 0, -1 * Convert.ToSingle(coord[2]));
+            Quaternion ball_rotation = new Quaternion(0, 0, 0, 0);
+            Instantiate(ball, ball_transform, ball_rotation);
+        }
+    }
+
     public void Clear()
     {
         GameObject[] Solid = GameObject.FindGameObjectsWithTag("Solid");
