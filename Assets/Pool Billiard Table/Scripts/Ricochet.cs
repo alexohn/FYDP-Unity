@@ -52,7 +52,7 @@ namespace TargetPath
 
             while (run != 0)
             {
-
+                Clear();
                 Mouse_Select ball = new Mouse_Select(this, BallSelect());
                 yield return ball.coroutine;
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
@@ -61,6 +61,12 @@ namespace TargetPath
                 t.text = "Calculating Shot....";
                 Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
                 run = bounce.DetermineCase();
+                if (run == 1)
+                {
+                    t.text = "The shot is not possible. Please select a different ball or different pocket";
+                    //Console.Readline();
+                    //System.Threading.Thread.Sleep(3000);
+                }
 
 
             }

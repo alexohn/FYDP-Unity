@@ -64,7 +64,7 @@ namespace TargetPath
 
             if (incidenttrajectory == Vector3.zero)
             {
-                Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
+                Debug.Log("Desired shot not possible. Cannot bounce the ball to the pocket. Please select either a different ball or a different pocket NOW");
                 return 1;
             }
 
@@ -85,7 +85,7 @@ namespace TargetPath
 
             if (check == Vector3.zero)
             {
-                Debug.Log("Desired shot not possible. Please select either a different ball or a different pocket NOW");
+                Debug.Log("Desired shot not possible. Cannot bounce the cue to the impact point. Please select a differnet ball or different pocket");
                 return 1;
             }
 
@@ -206,7 +206,7 @@ namespace TargetPath
 
             Vector3 intercept = RecursivePocket(pocket, ball, pocket, ball);
 
-
+            /*
             if (!path.Measure_Collision(ball, intercept) || !path.Measure_Collision(intercept, pocket))
             {
                 Debug.Log("The shot is not possible");
@@ -216,9 +216,19 @@ namespace TargetPath
             {
                 path.Draw_Solution1(ball, intercept, pocket);
                 return (ball - intercept).normalized;
+            }
+            */
+
+
+            if (!path.Measure_to_Wall(ball, intercept) && !path.Measure_to_Wall(pocket, intercept))
+            {
+                path.Draw_Solution1(ball, intercept, pocket);
+                return (ball - intercept).normalized;
+                //path.Draw_Solution2(ball, solutionintercept2, impactpoint);
 
             }
 
+            return new Vector3();
 
         }
 
@@ -268,7 +278,7 @@ namespace TargetPath
             SelectQuadrant(ball, impactpoint);
             Vector3 solutionintercept2 = RecursiveIntercept_SideWall(impactpoint, ball, impactpoint, ball);
 
-            bool check = path.Measure_Collision(ball, solutionintercept);
+            bool check = false;
 
 
             //There is a null exception being thrown here. Don't really know why
@@ -282,10 +292,29 @@ namespace TargetPath
             }
             else
             */
+
+            //if(!path.Measure_to_Wall(ball, solutionintercept2) && path.Measure_Collision(ball, this.pocket.transform.position))
+            if(!path.Measure_to_Wall(ball, solutionintercept2) && !path.Measure_to_Wall(impactpoint, solutionintercept2))
+
+            {
+                path.Draw_Solution2(ball, solutionintercept2, impactpoint);
+                check = true;
+            }
+
+            if(!path.Measure_to_Wall(ball, solutionintercept) && !path.Measure_to_Wall(impactpoint, solutionintercept))
             {
                 path.Draw_Solution1(ball, solutionintercept, impactpoint);
-                path.Draw_Solution2(ball, solutionintercept2, impactpoint);
+                check = true;
+                //path.Draw_Solution2(ball, solutionintercept2, impactpoint);
+                
+            }
+            if (check == true)
+            {
                 return solutionintercept;
+            }
+            else
+            {
+                return new Vector3();
             }
 
 
@@ -609,7 +638,7 @@ namespace TargetPath
             {
                 count++;
                 Vector3 hitpoint = reflect_projection.GetPoint(enter);
-                path.Draw_Solution1(ball, intercept, hitpoint);
+                //path.Draw_Solution1(ball, intercept, hitpoint);
 
                 if (Vector3.Distance(hitpoint, impactpoint) < 0.5f)
                     return intercept;

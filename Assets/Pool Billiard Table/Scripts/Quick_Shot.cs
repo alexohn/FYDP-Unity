@@ -58,9 +58,9 @@ namespace TargetPath
 
             //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
             float angle = Vector3.Angle((cue - ball).normalized, (impact - ball).normalized);
-
+            //Debug.Log(angle);
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
-            if (!check && angle <= 45f)
+            if (!check && angle <= 50f)
             //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
             {
                 //If there is nothing in the way and the you can reach the impact point
@@ -81,11 +81,15 @@ namespace TargetPath
             line1.tag = "Solution";
             LineRenderer shot1 = line1.AddComponent<LineRenderer>();
             shot1.SetWidth(0.3f, 0.3f);
+            shot1.material = new Material(Shader.Find("Particles/Additive"));
+            shot1.SetColors(Color.cyan, Color.cyan);
 
             GameObject line2 = new GameObject("line");
             line2.tag = "Solution";
             LineRenderer shot2 = line2.AddComponent<LineRenderer>();
             shot2.SetWidth(0.3f, 0.3f);
+            shot2.material = new Material(Shader.Find("Particles/Additive"));
+            shot2.SetColors(Color.cyan, Color.cyan);
 
             Vector3[] coord1 = new Vector3[2] { cue, ball };
             Vector3[] coord2 = new Vector3[2] { ball, pocket };
@@ -113,6 +117,36 @@ namespace TargetPath
             Vector3[] coord2 = new Vector3[2] { ball, pocket };
             shot1.SetPositions(coord1);
             shot2.SetPositions(coord2);
+        }
+
+        public bool Measure_to_Wall(Vector3 start, Vector3 end)
+        {
+            RaycastHit collision;
+            Physics.Linecast(start, end, out collision);
+            if (collision.transform.CompareTag("Wall_Left") || collision.transform.CompareTag("Wall_Right") || collision.transform.CompareTag("Wall_Top") || collision.transform.CompareTag("Wall_Bottom"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+                //Debug.Log(collision.transform.tag):
+            }
+        }
+
+        public bool Measure_to_Pocket(Vector3 impact, GameObject ball, Vector3 pocket)
+        {
+            RaycastHit collision;
+            Physics.Linecast(ball.transform.position, pocket, out collision);
+            if (collision.transform.CompareTag("Wall_Left") || collision.transform.CompareTag("Wall_Right") || collision.transform.CompareTag("Wall_Top") || collision.transform.CompareTag("Wall_Bottom"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+                //Debug.Log(collision.transform.tag):
+            }
         }
 
         public void Draw_line(Vector3 ball, Vector3 destination)
