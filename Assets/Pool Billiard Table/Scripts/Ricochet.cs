@@ -17,12 +17,15 @@ namespace TargetPath
         bool algo_start = false;
         bool cue_select = false;
         public Canvas popup;
-
+        GameObject[] pocket_array;
+        GameObject[] balls_array;
 
         // Use this for initialization, hides game object
         void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
+            pocket_array = GameObject.FindGameObjectsWithTag("Pocket");
+            balls_array = GameObject.FindGameObjectsWithTag("Solid");
             popup = popup.GetComponent<Canvas>();
             popup.enabled = false;
 
@@ -123,6 +126,8 @@ namespace TargetPath
             //popup.enabled = true;
             Transform child = popup.transform.Find("Text");
             Text t = child.GetComponent<Text>();
+            //pocket_array[0].
+
 
             while (true)
             {

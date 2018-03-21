@@ -97,8 +97,8 @@ public class Process_Color : MonoBehaviour {
         Process process = new Process();
         process.StartInfo.FileName = "Image_Process_TF.exe";
         process.StartInfo.CreateNoWindow = true;
-        process.Start();
-        process.WaitForExit();
+        //process.Start();
+        //process.WaitForExit();
         string[] circles = File.ReadAllLines("colour_coordinates.txt");
         char split = ',';
         foreach (string circle in circles)
@@ -126,6 +126,7 @@ public class Process_Color : MonoBehaviour {
                 ball_collider.bounds.Intersects(Wall4_collider.bounds)
                 )
             {
+                UnityEngine.Debug.Log("Something Clipped");
                 continue;
             }
 

@@ -1,4 +1,4 @@
-blackball,49.4058,3.116
-cueball,31.646,5.043
-redball,20.5157,20.9401
-yellowball,43.4762,12.341
+blackball,34.6917,11.1996
+blueball,7.47609,25.3352
+cueball,12.67,23.4053
+redball,19.9695,9.47493
