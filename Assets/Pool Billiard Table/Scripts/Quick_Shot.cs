@@ -21,6 +21,7 @@ namespace TargetPath
     public class Target
     {
         public float distance;
+        public Vector3 position;
         public Vector3 impactpoint;
         public bool valid_path;
         public Pocket opt_pocket;
@@ -53,12 +54,34 @@ namespace TargetPath
         {
             //castdirection = new Ray(ball, (destination - ball).normalized);
             //bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
+            RaycastHit collision;
             bool check = Physics.Linecast(cue, impact);
+            Physics.Linecast(cue, impact, out collision);
 
-
-            //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
             float angle = Vector3.Angle((cue - ball).normalized, (impact - ball).normalized);
-            //Debug.Log(angle);
+            Debug.Log(angle);
+
+            if (check)
+            {
+                if (collision.collider.transform.position == ball && angle <= 50)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (angle <= 50)
+                    return true;
+                else
+                    return false;
+            }
+                
+            
+            /*
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
             if (!check && angle <= 50f)
             //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
@@ -71,6 +94,7 @@ namespace TargetPath
                 //If there is something in the way or you cannot reach the target point
                 return false;
             }
+            */
 
         }
 
@@ -194,6 +218,7 @@ namespace TargetPath
             return ball + (trajectory * 1.5f);
         }
 
+
     }
 }
 
@@ -249,12 +274,16 @@ namespace TargetPath
                         target_path.distance = Vector3.Distance(cue.transform.position, ball.transform.position);
                         requiredtrajectory = (ball.transform.position - target_path.opt_pocket.position).normalized;
                         target_path.impactpoint = path.Impactpoint(ball.transform.position, requiredtrajectory); //Need to determine radius of ball
+                        target_path.position = ball.transform.position;
                     }
                 }
                 if (target_path.valid_path == true)
                 {
                     //Determine if it's the best trajectory found 
-                    double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
+
+                    //double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
+                    float angle = Vector3.Angle((cue.transform.position - target_path.impactpoint).normalized, (target_path.opt_pocket.position - target_path.position).normalized);
+                    double shot_risk = 0.30 * target_path.distance + 0.70 * target_path.opt_pocket.distance + 0.25 * angle;
                     /*
                     print(shot_risk);
                     print(target_path.impactpoint);
