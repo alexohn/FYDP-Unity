@@ -18,8 +18,10 @@ public class menuScript : MonoBehaviour
     public Button scores; //database interaction
     public string UserNameInput;
     public string UserNameInput2;
-    public string CreateUserURL = "http://localhost/BilliardsBuddy/InserUser.php";
-    public string CheckUserURL = "http://localhost/BilliardsBuddy/CheckUser.php";
+	public static string UserName;
+    public string CreateUserURL = "localhost:8080/BilliardsBuddy/InserUser.php";
+    public string CheckUserURL = "localhost:8080/BilliardsBuddy/CheckUser.php";
+
     //public Button CreateUserBtn;
     //public bool CreateBtnisClicked;
 
@@ -91,6 +93,7 @@ public class menuScript : MonoBehaviour
 	public void LoginSuccess() 
 	{
 		EnterUserSuccess.enabled = false;
+		UserName = UserNameInput2;
 		SceneManager.LoadScene("Pool table");
 	}
 
