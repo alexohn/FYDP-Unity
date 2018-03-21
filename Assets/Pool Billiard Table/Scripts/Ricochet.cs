@@ -17,12 +17,15 @@ namespace TargetPath
         bool algo_start = false;
         bool cue_select = false;
         public Canvas popup;
-
+        GameObject[] pocket_array;
+        GameObject[] balls_array;
 
         // Use this for initialization, hides game object
         void Start()
         {
             cue = GameObject.FindGameObjectWithTag("Cue");
+            pocket_array = GameObject.FindGameObjectsWithTag("Pocket");
+            balls_array = GameObject.FindGameObjectsWithTag("Solid");
             popup = popup.GetComponent<Canvas>();
             popup.enabled = false;
 
@@ -52,7 +55,7 @@ namespace TargetPath
 
             while (run != 0)
             {
-
+                Clear();
                 Mouse_Select ball = new Mouse_Select(this, BallSelect());
                 yield return ball.coroutine;
                 Mouse_Select pocket = new Mouse_Select(this, PocketSelect());
@@ -61,6 +64,12 @@ namespace TargetPath
                 t.text = "Calculating Shot....";
                 Bounce_Shot bounce = new Bounce_Shot(cue, bounce_ball, bounce_pocket);
                 run = bounce.DetermineCase();
+                if (run == 1)
+                {
+                    t.text = "The shot is not possible. Please select a different ball or different pocket";
+                    //Console.Readline();
+                    //System.Threading.Thread.Sleep(3000);
+                }
 
 
             }
@@ -81,7 +90,7 @@ namespace TargetPath
 
                 if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out pocket_select))
                 {
-                    //Debug.Log(pocket_select.transform.gameObject.tag);
+                    Debug.Log(pocket_select.transform.gameObject.tag);
                     /*
                     foreach (Transform child in pocket_select.transform)
                     {
@@ -117,6 +126,8 @@ namespace TargetPath
             //popup.enabled = true;
             Transform child = popup.transform.Find("Text");
             Text t = child.GetComponent<Text>();
+            //pocket_array[0].
+
 
             while (true)
             {
@@ -128,6 +139,7 @@ namespace TargetPath
                 {
                     if (!ball_select.transform.gameObject.CompareTag("Solid"))
                     {
+                        Debug.Log(ball_select.transform.gameObject.tag);
                         //print("Improper Ball Selection. Try again");
                         t.text = "Improper Ball seleciton. Try again";
                         yield return new WaitUntil(() => Input.GetMouseButtonUp(0) == true);

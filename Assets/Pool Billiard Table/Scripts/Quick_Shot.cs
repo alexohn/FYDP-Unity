@@ -21,6 +21,7 @@ namespace TargetPath
     public class Target
     {
         public float distance;
+        public Vector3 position;
         public Vector3 impactpoint;
         public bool valid_path;
         public Pocket opt_pocket;
@@ -53,14 +54,36 @@ namespace TargetPath
         {
             //castdirection = new Ray(ball, (destination - ball).normalized);
             //bool check = Physics.Raycast(ball, (destination - ball).normalized, Vector3.Distance(ball, destination));
+            RaycastHit collision;
             bool check = Physics.Linecast(cue, impact);
+            Physics.Linecast(cue, impact, out collision);
 
-
-            //float angle = Vector3.Angle((cue-ball).normalized, requiredtrajectory);
             float angle = Vector3.Angle((cue - ball).normalized, (impact - ball).normalized);
+            Debug.Log(angle);
 
+            if (check)
+            {
+                if (collision.collider.transform.position == ball && angle <= 50)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (angle <= 50)
+                    return true;
+                else
+                    return false;
+            }
+                
+            
+            /*
             //This check statement doesnt work sometimes because of the angle calculation, find another way to do this
-            if (!check && angle <= 45f)
+            if (!check && angle <= 50f)
             //if (!Physics.Linecast(ball, destination) && Vector3.Angle(requiredtrajectory, (ball - destination).normalized) > 135f)
             {
                 //If there is nothing in the way and the you can reach the impact point
@@ -71,6 +94,7 @@ namespace TargetPath
                 //If there is something in the way or you cannot reach the target point
                 return false;
             }
+            */
 
         }
 
@@ -81,11 +105,15 @@ namespace TargetPath
             line1.tag = "Solution";
             LineRenderer shot1 = line1.AddComponent<LineRenderer>();
             shot1.SetWidth(0.3f, 0.3f);
+            shot1.material = new Material(Shader.Find("Particles/Additive"));
+            shot1.SetColors(Color.cyan, Color.cyan);
 
             GameObject line2 = new GameObject("line");
             line2.tag = "Solution";
             LineRenderer shot2 = line2.AddComponent<LineRenderer>();
             shot2.SetWidth(0.3f, 0.3f);
+            shot2.material = new Material(Shader.Find("Particles/Additive"));
+            shot2.SetColors(Color.cyan, Color.cyan);
 
             Vector3[] coord1 = new Vector3[2] { cue, ball };
             Vector3[] coord2 = new Vector3[2] { ball, pocket };
@@ -113,6 +141,36 @@ namespace TargetPath
             Vector3[] coord2 = new Vector3[2] { ball, pocket };
             shot1.SetPositions(coord1);
             shot2.SetPositions(coord2);
+        }
+
+        public bool Measure_to_Wall(Vector3 start, Vector3 end)
+        {
+            RaycastHit collision;
+            Physics.Linecast(start, end, out collision);
+            if (collision.transform.CompareTag("Wall_Left") || collision.transform.CompareTag("Wall_Right") || collision.transform.CompareTag("Wall_Top") || collision.transform.CompareTag("Wall_Bottom"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+                //Debug.Log(collision.transform.tag):
+            }
+        }
+
+        public bool Measure_to_Pocket(Vector3 impact, GameObject ball, Vector3 pocket)
+        {
+            RaycastHit collision;
+            Physics.Linecast(ball.transform.position, pocket, out collision);
+            if (collision.transform.CompareTag("Wall_Left") || collision.transform.CompareTag("Wall_Right") || collision.transform.CompareTag("Wall_Top") || collision.transform.CompareTag("Wall_Bottom"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+                //Debug.Log(collision.transform.tag):
+            }
         }
 
         public void Draw_line(Vector3 ball, Vector3 destination)
@@ -159,6 +217,7 @@ namespace TargetPath
         {
             return ball + (trajectory * 1.5f);
         }
+
 
     }
 }
@@ -215,12 +274,16 @@ namespace TargetPath
                         target_path.distance = Vector3.Distance(cue.transform.position, ball.transform.position);
                         requiredtrajectory = (ball.transform.position - target_path.opt_pocket.position).normalized;
                         target_path.impactpoint = path.Impactpoint(ball.transform.position, requiredtrajectory); //Need to determine radius of ball
+                        target_path.position = ball.transform.position;
                     }
                 }
                 if (target_path.valid_path == true)
                 {
                     //Determine if it's the best trajectory found 
-                    double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
+
+                    //double shot_risk = 0.45 * target_path.distance + 0.55 * target_path.opt_pocket.distance;
+                    float angle = Vector3.Angle((cue.transform.position - target_path.impactpoint).normalized, (target_path.opt_pocket.position - target_path.position).normalized);
+                    double shot_risk = 0.30 * target_path.distance + 0.70 * target_path.opt_pocket.distance + 0.25 * angle;
                     /*
                     print(shot_risk);
                     print(target_path.impactpoint);

@@ -18,8 +18,8 @@ public class menuScript : MonoBehaviour
     public Button scores; //database interaction
     public string UserNameInput;
     public string UserNameInput2;
-    public string CreateUserURL = "localhost:8080/BilliardsBuddy/InserUser.php";
-    public string CheckUserURL = "localhost:8080/BilliardsBuddy/CheckUser.php";
+    public string CreateUserURL = "http://localhost/BilliardsBuddy/InserUser.php";
+    public string CheckUserURL = "http://localhost/BilliardsBuddy/CheckUser.php";
     //public Button CreateUserBtn;
     //public bool CreateBtnisClicked;
 
@@ -69,6 +69,7 @@ public class menuScript : MonoBehaviour
     {
 		if (UserNameInput != "") {
 			StartCoroutine (CheckAndCreateUser (UserNameInput, CreateUserFail, CreateUserSuccess));
+            //StartCoroutine(TestDatabase());
 		} 
 		else {
 			CreateUserFail.enabled = true;
@@ -127,7 +128,7 @@ public class menuScript : MonoBehaviour
 
         WWWForm form = new WWWForm();
         form.AddField("usernamePost", username);
-        WWW www = new WWW(CheckUserURL, form);
+        WWW www = new WWW("http://localhost/BilliardsBuddy/CheckUser.php", form);
         yield return www;
         print(www.text);
 
@@ -135,15 +136,13 @@ public class menuScript : MonoBehaviour
         {
             WWWForm form2 = new WWWForm();
             form2.AddField("usernamePost", username);
-            WWW www2 = new WWW(CreateUserURL, form2);
+            WWW www2 = new WWW("http://localhost/BilliardsBuddy/InserUser.php", form2);
             yield return www2;
             createUserSuccess.enabled = true;
         }
         else
         {
-            print("Already Exists");
             createUserFail.enabled = true;
-            //add popup here
         }
     }
 
@@ -152,27 +151,36 @@ public class menuScript : MonoBehaviour
 
         WWWForm form = new WWWForm();
         form.AddField("usernamePost", username);
-        WWW www = new WWW(CheckUserURL, form);
+        WWW www = new WWW("http://localhost/BilliardsBuddy/CheckUser.php", form);
         yield return www;
         print(www.text);
 
-        if (www.text == "False")
+        if (www.text == "True")
         {
-            print("Doesn't exist");
-            enterUserFail.enabled = true;
-            //createUserSuccess.enabled = true;
+            enterUserSuccess.enabled = true;
         }
         else
         {
-            print("Success");
-            enterUserSuccess.enabled = true;
-            //createUserFail.enabled = true;
+            enterUserFail.enabled = true;
         }
     }
 
 
-    // Update is called once per frame
-    void Update()
+
+        // Use this for initialization
+     IEnumerator TestDatabase()
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("usernamePost", UserNameInput);
+        WWW usersData = new WWW("http://localhost/BilliardsBuddy/CheckUser.php",form);
+            yield return usersData;
+            string usersDataString = usersData.text;
+            print(usersDataString);
+    }
+
+
+// Update is called once per frame
+void Update()
     {
 
     }
